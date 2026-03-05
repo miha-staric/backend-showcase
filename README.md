@@ -1,7 +1,7 @@
 ![Language](https://img.shields.io/badge/language-Csharp-green)
 ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows-blue)
 
-# 🚀 backend-showcase
+# 🚀 Task Management API as a Backend Showcase
 
 Showcase project of my C# backend development expertise using the latest tech stack and best practices.
 

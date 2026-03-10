@@ -4,6 +4,7 @@ public class AppDbContext : DbContext
 {
     public DbSet<TaskItem> Tasks { get; set; }
     public DbSet<User> Users { get; set; }
+    public DbSet<Tenant> Tenants { get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options)
@@ -27,9 +28,30 @@ public class AppDbContext : DbContext
             task1, task2
         );
 
+        Tenant tenantA = new Tenant { Id = new Guid(), Title = "Tenant-A", Enabled = true };
+        Tenant tenantB = new Tenant { Id = new Guid(), Title = "Tenant-B", Enabled = true };
+        Tenant tenantC = new Tenant { Id = new Guid(), Title = "Tenant-C", Enabled = true };
+
+        modelBuilder.Entity<Tenant>().HasData(
+            tenantA, tenantB, tenantC
+        );
+
         modelBuilder.Entity<TaskItem>()
-        .HasOne(t => t.AssignedUser)
-        .WithMany(u => u.Tasks)
-        .HasForeignKey(t => t.AssignedUserId);
+          .HasOne(t => t.AssignedUser)
+          .WithMany(u => u.Tasks)
+          .HasForeignKey(t => t.AssignedUserId)
+          .HasForeignKey(t => t.TenantId);
+
+        modelBuilder.Entity<TaskItem>(entity =>
+        {
+            entity.HasKey(t => t.Id);
+            entity.HasIndex(t => t.TenantId);
+        });
+
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(t => t.Id);
+            entity.HasIndex(t => t.TenantId).IsUnique();
+        });
     }
 }

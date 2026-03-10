@@ -4,14 +4,16 @@ public class TenantService : ITenantService
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly ILogger<TenantService> _logger;
+    private readonly AppDbContext _dbContext;
 
-    public TenantService(IHttpContextAccessor httpContextAccessor, ILogger<TenantService> logger)
+    public TenantService(IHttpContextAccessor httpContextAccessor, AppDbContext dbContext, ILogger<TenantService> logger)
     {
         _httpContextAccessor = httpContextAccessor;
         _logger = logger;
+        _dbContext = dbContext;
     }
 
-    public Guid GetTenantId()
+    public async Task<Guid?> GetTenantId()
     {
         ClaimsPrincipal? user = _httpContextAccessor.HttpContext?.User;
 
@@ -21,21 +23,30 @@ public class TenantService : ITenantService
             throw new InvalidOperationException("User context not found");
         }
 
-        var tenantIdClaim = user.FindFirst("tenant_id");
+        var issuer = user.FindFirst("iss");
 
-        if (tenantIdClaim == null)
+        if (issuer == null)
         {
-            _logger.LogWarning("Tenant ID claim not found for user {UserId}", user.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            throw new InvalidOperationException("Tenant ID not found in token");
+            _logger.LogWarning("Issuer not found for user {UserId}", user.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            throw new InvalidOperationException("Issuer not found in token");
         }
 
-        if (Guid.TryParse(tenantIdClaim.Value, out var tenantId))
-        {
-            _logger.LogInformation("Retrieved tenant ID: {TenantId}", tenantId);
-            return tenantId;
-        }
+        String realm = issuer.Value.Split('/').Last();
+        _logger.LogInformation("Retrieved realm: {realm}", realm);
 
-        throw new InvalidOperationException($"Invalid tenant ID format: {tenantIdClaim.Value}");
+        TenantDto? tenant = _dbContext.Tenants
+          .Select(t => new TenantDto
+          {
+              Id = t.Id,
+              Title = t.Title,
+              Enabled = t.Enabled
+          })
+          .FirstOrDefault(t => t.Title == realm);
+
+        if (tenant != null)
+            return tenant.Id;
+
+        throw new InvalidOperationException($"Invalid tenant ID format: {issuer.Value}");
     }
 }
 

@@ -9,7 +9,7 @@ public class TaskService : ITaskService
         _db = db;
     }
 
-    public async Task<IEnumerable<TaskDto>> GetAllTasksAsync(Guid tenantId)
+    public async Task<IEnumerable<TaskDto>> GetAllTasksAsync(Guid? tenantId)
     {
         IEnumerable<TaskDto> taskDtos = await _db.Tasks
             .Include(t => t.AssignedUser)
@@ -30,7 +30,7 @@ public class TaskService : ITaskService
         return taskDtos;
     }
 
-    public async Task<TaskDto?> GetTaskByIdAsync(Guid taskId, Guid tenantId)
+    public async Task<TaskDto?> GetTaskByIdAsync(Guid taskId, Guid? tenantId)
     {
         TaskDto? taskDto = await _db.Tasks
           .Include(t => t.AssignedUser)

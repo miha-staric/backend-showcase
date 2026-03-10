@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using Serilog;
 using System.Text.Json.Serialization;
 
@@ -22,8 +22,23 @@ var authority = keycloakSettings["Authority"];
 var audience = keycloakSettings["Audience"];
 
 // Add services
+// 2. Configure Swagger with Bearer auth
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("bearer", new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Description = "JWT Authorization header using the Bearer scheme."
+    });
+
+    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    {
+        [new OpenApiSecuritySchemeReference("bearer", document)] = []
+    });
+});
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -37,30 +52,29 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ITenantService, TenantService>();
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-  .AddJwtBearer(options =>
-      {
-          options.Authority = authority;
-          options.Audience = audience;
-          options.RequireHttpsMetadata = false;
-          options.TokenValidationParameters = new TokenValidationParameters
-          {
-              ValidateAudience = true,
-              ValidateIssuer = true,
-              ValidateLifetime = true
-          };
-      });
+builder.Services.AddAuthentication("Bearer")
+  .AddJwtBearer("Bearer", options =>
+  {
+      options.Authority = "http://keycloak:8080/realms/realm1";
+      options.RequireHttpsMetadata = false;
+      options.TokenValidationParameters.ValidateAudience = false;
+  });
 builder.Services.AddAuthorization();
 
 WebApplication app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
+    app.UseSwagger(options =>
+        {
+            options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1;
+        });
     app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 try

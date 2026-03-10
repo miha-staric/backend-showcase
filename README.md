@@ -67,6 +67,12 @@ Side Channels:
 ## 📦 Core Entities
 
 - **Organization** (tenant)
-- **User** (linked to Keycloak ID)
+- **User** (linked to KeyCloak ID)
 - **Task** (title, description, status, assigned user, due date)
 - **TaskComment** (optional, adds depth without complexity)
+
+## 🔐 KeyCloak Integration and Multi-tenancy
+
+The application does not create users, KeyCloak does. So when user logs in with JWT token for the first time, the user gets created in the Database.
+
+On the other hand, tenants themselves do not exist in KeyCloak, they are created in the app and users are linked to one or multiple tenants - this means a single user can connect to multiple tenants, so the API request headers should include tenant id as well.

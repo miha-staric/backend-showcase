@@ -20,8 +20,7 @@ public class TaskService : ITaskService
                 AssignedUser = new UserDto
                 {
                     Id = t.AssignedUser.Id,
-                    FirstName = t.AssignedUser.FirstName,
-                    LastName = t.AssignedUser.LastName
+                    Username = t.AssignedUser.Username
                 },
                 DueDate = t.DueDate
             })
@@ -42,8 +41,7 @@ public class TaskService : ITaskService
               AssignedUser = new UserDto
               {
                   Id = t.AssignedUser.Id,
-                  FirstName = t.AssignedUser.FirstName,
-                  LastName = t.AssignedUser.LastName
+                  Username = t.AssignedUser.Username
               },
               DueDate = t.DueDate
           })

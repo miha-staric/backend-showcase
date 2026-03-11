@@ -75,4 +75,10 @@ Side Channels:
 
 The application does not create users, KeyCloak does. So when user logs in with JWT token for the first time, the user gets created in the Database.
 
-On the other hand, tenants themselves do not exist in KeyCloak, they are created in the app and users are linked to one or multiple tenants - this means a single user can connect to multiple tenants, so the API request headers should include tenant id as well.
+On the other hand, tenants themselves do not exist in KeyCloak, they are created in the app and users are linked to one or multiple tenants - this means a single user can connect to multiple tenants, so the API request headers should include tenant id as well, for example:
+
+```text
+GET /api/tasks
+Authorization: Bearer <token>
+X-Tenant-Id: 7d19d6c3-7c5d-4d90-98d2-81c9b3e7e99f
+```

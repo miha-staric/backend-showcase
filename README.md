@@ -23,7 +23,6 @@ Users authenticate via Keycloak, create tasks, assign them to teammates, and rec
 🚀 **Dapper** — Performance-critical queries  
 🛡️ **Polly** — Resilience patterns  
 🧪 **xUnit + Testcontainers** — Testing rigor  
-📖 **Swagger** — API documentation  
 📊 **GraphQL** — Flexible data fetching  
 💚 **HealthChecks** — Production readiness
 
@@ -40,7 +39,7 @@ Users authenticate via Keycloak, create tasks, assign them to teammates, and rec
 | ✔️ Input validation | FluentValidation on commands |
 | 📊 Structured logging | Serilog with correlation IDs |
 | 🔄 Retry logic on failures | Polly resilience policies |
-| 📚 API documentation | Swagger + GraphQL schema |
+| 📚 API documentation | OpenAPI + GraphQL schema |
 | 💓 Health checks | Database, cache, message broker health |
 | 🧬 Comprehensive tests | xUnit + Testcontainers |
 

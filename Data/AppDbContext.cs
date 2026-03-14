@@ -33,13 +33,6 @@ public class AppDbContext : DbContext
          alice, bob, carol, dan, eve, frank, grace
         );
 
-        TaskItem task1 = new TaskItem { Id = new Guid(), Title = "Learn ASP.NET Core", Status = TaskStatus.New, AssignedUserId = carol.Id, DueDate = null };
-        TaskItem task2 = new TaskItem { Id = new Guid(), Title = "Build Web API", Status = TaskStatus.New, AssignedUserId = dan.Id, DueDate = null };
-
-        modelBuilder.Entity<TaskItem>().HasData(
-            task1, task2
-        );
-
         Tenant tenantA = new Tenant { Id = new Guid("4da30340-fda0-49b0-b564-f511c630d221"), Title = "Tenant-A", Enabled = true };
         Tenant tenantB = new Tenant { Id = new Guid("2337e27f-58eb-4973-9b43-4b795dac1ad7"), Title = "Tenant-B", Enabled = true };
         Tenant tenantC = new Tenant { Id = new Guid("4da16ab8-3f6b-4af6-9fba-82daa779aeb9"), Title = "Tenant-C", Enabled = true };
@@ -47,6 +40,30 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Tenant>().HasData(
             tenantA, tenantB, tenantC
         );
+
+        TaskItem task1 = new TaskItem
+        {
+            Id = new Guid(),
+            Title = "Learn ASP.NET Core",
+            Status = TaskStatus.New,
+            AssignedUserId = carol.Id,
+            TenantId = tenantB.Id,
+            DueDate = null
+        };
+        TaskItem task2 = new TaskItem
+        {
+            Id = new Guid(),
+            Title = "Build Web API",
+            Status = TaskStatus.New,
+            AssignedUserId = alice.Id,
+            TenantId = tenantA.Id,
+            DueDate = null
+        };
+
+        modelBuilder.Entity<TaskItem>().HasData(
+            task1, task2
+        );
+
 
         modelBuilder.Entity<TaskItem>()
           .HasOne(t => t.AssignedUser)

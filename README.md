@@ -23,6 +23,7 @@ Users authenticate via Keycloak, create tasks, assign them to teammates, and rec
 🚀 **Dapper** — Performance-critical queries  
 🛡️ **Polly** — Resilience patterns  
 🧪 **xUnit + Testcontainers** — Testing rigor  
+🏋️ **K6** - Load testing
 📊 **GraphQL** — Flexible data fetching  
 💚 **HealthChecks** — Production readiness
 
@@ -41,7 +42,7 @@ Users authenticate via Keycloak, create tasks, assign them to teammates, and rec
 | 🔄 Retry logic on failures | Polly resilience policies |
 | 📚 API documentation | OpenAPI + GraphQL schema |
 | 💓 Health checks | Database, cache, message broker health |
-| 🧬 Comprehensive tests | xUnit + Testcontainers |
+| 🧬 Comprehensive tests | xUnit + Testcontainers + K6 |
 
 ## 🏛️ Architecture Sketch
 

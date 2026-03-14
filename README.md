@@ -23,7 +23,7 @@ Users authenticate via Keycloak, create tasks, assign them to teammates, and rec
 🚀 **Dapper** — Performance-critical queries  
 🛡️ **Polly** — Resilience patterns  
 🧪 **xUnit + Testcontainers** — Testing rigor  
-🏋️ **K6** - Load testing
+🏋️ **K6** — Load testing
 📊 **GraphQL** — Flexible data fetching  
 💚 **HealthChecks** — Production readiness
 

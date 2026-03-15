@@ -8,13 +8,13 @@ using Microsoft.AspNetCore.Mvc;
 public class TasksController : ControllerBase
 {
     private readonly ITaskService _taskService;
-    private readonly ITenantService _tenantService;
+    private readonly ITenantContext _tenantContext;
     private readonly ILogger<TasksController> _logger;
 
-    public TasksController(ITaskService taskService, ITenantService tenantService, ILogger<TasksController> logger)
+    public TasksController(ITaskService taskService, ITenantContext tenantContext, ILogger<TasksController> logger)
     {
         _taskService = taskService;
-        _tenantService = tenantService;
+        _tenantContext = tenantContext;
         _logger = logger;
     }
 
@@ -22,21 +22,26 @@ public class TasksController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<TaskDto>>> GetAllTasks()
     {
-        Guid? tenantId = await _tenantService.GetTenantId();
+        Guid? tenantId = _tenantContext.TenantId;
+
         if (tenantId == null)
             return NotFound();
-        IEnumerable<TaskDto> tasks = await _taskService.GetAllTasksAsync(tenantId);
+
+        IEnumerable<TaskDto> tasks = await _taskService.GetAllTasksAsync();
+
         return Ok(tasks);
     }
 
     // GET: api/tasks/1
-    [HttpGet("{id}")]
+    [HttpGet("{taskId}")]
     public async Task<ActionResult<TaskDto>> GetTaskById(Guid taskId)
     {
-        Guid? tenantId = await _tenantService.GetTenantId();
+        Guid? tenantId = _tenantContext.TenantId;
+
         if (tenantId == null)
             return NotFound();
-        TaskDto? task = await _taskService.GetTaskByIdAsync(taskId, tenantId);
+
+        TaskDto? task = await _taskService.GetTaskByIdAsync(taskId);
 
         if (task == null)
             return NotFound();

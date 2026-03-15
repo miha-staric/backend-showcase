@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using Serilog;
@@ -22,7 +21,6 @@ var authority = keycloakSettings["Authority"];
 var audience = keycloakSettings["Audience"];
 
 // Add services
-// 2. Configure Swagger with Bearer auth
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -38,6 +36,18 @@ builder.Services.AddSwaggerGen(options =>
     {
         [new OpenApiSecuritySchemeReference("bearer", document)] = []
     });
+
+    options.AddSecurityDefinition("X-Tenant-Id", new OpenApiSecurityScheme
+    {
+        Name = "X-Tenant-Id",
+        Type = SecuritySchemeType.ApiKey,
+        In = ParameterLocation.Header
+    });
+
+    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    {
+        [new OpenApiSecuritySchemeReference("X-Tenant-Id", document)] = []
+    });
 });
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -47,8 +57,6 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
         options.JsonSerializerOptions.WriteIndented = true;
     });
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ITenantService, TenantService>();
@@ -60,9 +68,12 @@ builder.Services.AddAuthentication("Bearer")
       options.TokenValidationParameters.ValidateAudience = false;
   });
 builder.Services.AddAuthorization();
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<ITenantContext, TenantContext>();
 
+// Build Application
 WebApplication app = builder.Build();
-
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger(options =>
@@ -71,7 +82,7 @@ if (app.Environment.IsDevelopment())
         });
     app.UseSwaggerUI();
 }
-
+app.UseMiddleware<TenantMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

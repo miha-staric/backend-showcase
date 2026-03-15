@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace TaskManagementApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260314191133_InitialCreate")]
+    [Migration("20260315133750_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -60,15 +60,24 @@ namespace TaskManagementApi.Migrations
                             Id = new Guid("d907410e-5860-4cc4-8800-2230895c001f"),
                             AssignedUserId = new Guid("1b33930d-4437-41ee-9b10-a864b40cec78"),
                             Status = 0,
-                            TenantId = new Guid("00000000-0000-0000-0000-000000000000"),
+                            TenantId = new Guid("2337e27f-58eb-4973-9b43-4b795dac1ad7"),
                             Title = "Learn ASP.NET Core"
+                        },
+                        new
+                        {
+                            Id = new Guid("4da6ce73-e841-41f8-a0ea-2e7e93d22754"),
+                            AssignedUserId = new Guid("1b33930d-4437-41ee-9b10-a864b40cec78"),
+                            DueDate = new DateTimeOffset(new DateTime(2031, 7, 22, 10, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, -5, 0, 0, 0)),
+                            Status = 0,
+                            TenantId = new Guid("2337e27f-58eb-4973-9b43-4b795dac1ad7"),
+                            Title = "Write captain's log"
                         },
                         new
                         {
                             Id = new Guid("c534787f-dfb8-4269-8941-791efcb8c4e4"),
                             AssignedUserId = new Guid("bef81bfc-2cbb-4321-bd4a-cecb244dadcb"),
                             Status = 0,
-                            TenantId = new Guid("00000000-0000-0000-0000-000000000000"),
+                            TenantId = new Guid("4da30340-fda0-49b0-b564-f511c630d221"),
                             Title = "Build Web API"
                         });
                 });
@@ -121,9 +130,6 @@ namespace TaskManagementApi.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("text");
@@ -140,49 +146,42 @@ namespace TaskManagementApi.Migrations
                         {
                             Id = new Guid("bef81bfc-2cbb-4321-bd4a-cecb244dadcb"),
                             Email = "alice@tenant-a.example.com",
-                            TenantId = new Guid("00000000-0000-0000-0000-000000000000"),
                             Username = "alice"
                         },
                         new
                         {
                             Id = new Guid("657ca4fa-fb2d-4180-80db-1403c6b8579e"),
                             Email = "bob@tenant-a.example.com",
-                            TenantId = new Guid("00000000-0000-0000-0000-000000000000"),
                             Username = "bob"
                         },
                         new
                         {
                             Id = new Guid("1b33930d-4437-41ee-9b10-a864b40cec78"),
                             Email = "carol@tenant-b.example.com",
-                            TenantId = new Guid("00000000-0000-0000-0000-000000000000"),
                             Username = "carol"
                         },
                         new
                         {
                             Id = new Guid("420f5b2e-ef55-4733-8bd9-053a07b9ed9c"),
                             Email = "dan@tenant-b.example.com",
-                            TenantId = new Guid("00000000-0000-0000-0000-000000000000"),
                             Username = "dan"
                         },
                         new
                         {
                             Id = new Guid("eaa46a1d-7ace-4ba8-9b2e-a4e4f8d654d1"),
                             Email = "eve@tenant-c.example.com",
-                            TenantId = new Guid("00000000-0000-0000-0000-000000000000"),
                             Username = "eve"
                         },
                         new
                         {
                             Id = new Guid("13bac98c-abd2-424b-bf2f-e1c26dee0e71"),
                             Email = "frank@tenant-c.example.com",
-                            TenantId = new Guid("00000000-0000-0000-0000-000000000000"),
                             Username = "frank"
                         },
                         new
                         {
                             Id = new Guid("e8f46251-0c7a-47c2-99b3-88c9496d8e9d"),
                             Email = "grace@no-tenant.example.com",
-                            TenantId = new Guid("00000000-0000-0000-0000-000000000000"),
                             Username = "grace"
                         });
                 });
@@ -197,9 +196,44 @@ namespace TaskManagementApi.Migrations
 
                     b.HasKey("UserId", "TenantId");
 
-                    b.HasIndex("TenantId");
-
                     b.ToTable("UserTenant");
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = new Guid("bef81bfc-2cbb-4321-bd4a-cecb244dadcb"),
+                            TenantId = new Guid("4da30340-fda0-49b0-b564-f511c630d221")
+                        },
+                        new
+                        {
+                            UserId = new Guid("bef81bfc-2cbb-4321-bd4a-cecb244dadcb"),
+                            TenantId = new Guid("4da16ab8-3f6b-4af6-9fba-82daa779aeb9")
+                        },
+                        new
+                        {
+                            UserId = new Guid("657ca4fa-fb2d-4180-80db-1403c6b8579e"),
+                            TenantId = new Guid("4da30340-fda0-49b0-b564-f511c630d221")
+                        },
+                        new
+                        {
+                            UserId = new Guid("1b33930d-4437-41ee-9b10-a864b40cec78"),
+                            TenantId = new Guid("2337e27f-58eb-4973-9b43-4b795dac1ad7")
+                        },
+                        new
+                        {
+                            UserId = new Guid("420f5b2e-ef55-4733-8bd9-053a07b9ed9c"),
+                            TenantId = new Guid("2337e27f-58eb-4973-9b43-4b795dac1ad7")
+                        },
+                        new
+                        {
+                            UserId = new Guid("eaa46a1d-7ace-4ba8-9b2e-a4e4f8d654d1"),
+                            TenantId = new Guid("4da16ab8-3f6b-4af6-9fba-82daa779aeb9")
+                        },
+                        new
+                        {
+                            UserId = new Guid("13bac98c-abd2-424b-bf2f-e1c26dee0e71"),
+                            TenantId = new Guid("4da16ab8-3f6b-4af6-9fba-82daa779aeb9")
+                        });
                 });
 
             modelBuilder.Entity("TaskItem", b =>
@@ -209,25 +243,6 @@ namespace TaskManagementApi.Migrations
                         .HasForeignKey("AssignedUserId");
 
                     b.Navigation("AssignedUser");
-                });
-
-            modelBuilder.Entity("UserTenant", b =>
-                {
-                    b.HasOne("Tenant", "Tenant")
-                        .WithMany()
-                        .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Tenant");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("User", b =>

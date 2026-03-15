@@ -7,15 +7,19 @@ using Microsoft.AspNetCore.Mvc;
 [Authorize]
 public class TasksController : ControllerBase
 {
-    private readonly ITaskService _taskService;
     private readonly ITenantContext _tenantContext;
     private readonly ILogger<TasksController> _logger;
+    private readonly IMediator _mediator;
 
-    public TasksController(ITaskService taskService, ITenantContext tenantContext, ILogger<TasksController> logger)
+    public TasksController(
+        ITenantContext tenantContext,
+        ILogger<TasksController> logger,
+        IMediator mediator
+        )
     {
-        _taskService = taskService;
         _tenantContext = tenantContext;
         _logger = logger;
+        _mediator = mediator;
     }
 
     [HttpGet]
@@ -26,7 +30,7 @@ public class TasksController : ControllerBase
         if (tenantId == null)
             return NotFound();
 
-        IEnumerable<TaskDto> tasks = await _taskService.GetAllTasksAsync();
+        IEnumerable<TaskDto?> tasks = await _mediator.Send(new GetTasksQuery(tenantId.Value));
 
         return Ok(tasks);
     }
@@ -39,7 +43,7 @@ public class TasksController : ControllerBase
         if (tenantId == null)
             return NotFound();
 
-        TaskDto? task = await _taskService.GetTaskByIdAsync(taskId);
+        TaskDto? task = await _mediator.Send(new GetTaskByIdQuery(tenantId.Value, taskId));
 
         if (task == null)
             return NotFound();

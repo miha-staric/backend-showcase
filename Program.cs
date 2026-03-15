@@ -1,3 +1,4 @@
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using Serilog;
@@ -57,7 +58,6 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
         options.JsonSerializerOptions.WriteIndented = true;
     });
-builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ITenantService, TenantService>();
 builder.Services.AddAuthentication("Bearer")
@@ -72,6 +72,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<ITenantContext, TenantContext>();
 builder.Services.AddFusionCache();
+builder.Services.AddMediatR(typeof(Program));
 
 // Build Application
 WebApplication app = builder.Build();

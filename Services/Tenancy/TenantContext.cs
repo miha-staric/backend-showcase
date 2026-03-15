@@ -7,4 +7,3 @@ public class TenantContext : ITenantContext
         TenantId = tenantId;
     }
 }
-

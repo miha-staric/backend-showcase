@@ -82,10 +82,10 @@ if (app.Environment.IsDevelopment())
         });
     app.UseSwaggerUI();
 }
-app.UseMiddleware<TenantMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<TenantMiddleware>();
 app.MapControllers();
 
 try

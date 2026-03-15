@@ -41,6 +41,8 @@
       "id": "657ca4fa-fb2d-4180-80db-1403c6b8579e",
       "username": "bob",
       "email": "bob@tenant-a.example.com",
+      "firstName": "bob",
+      "lastName": "bob",
       "enabled": true,
       "emailVerified": true,
       "credentials": [
@@ -56,6 +58,8 @@
       "id": "1b33930d-4437-41ee-9b10-a864b40cec78",
       "username": "carol",
       "email": "carol@tenant-b.example.com",
+      "firstName": "carol",
+      "lastName": "sturka",
       "enabled": true,
       "emailVerified": true,
       "credentials": [
@@ -71,6 +75,8 @@
       "id": "420f5b2e-ef55-4733-8bd9-053a07b9ed9c",
       "username": "dan",
       "email": "dan@tenant-b.example.com",
+      "firstName": "dan",
+      "lastName": "dan",
       "enabled": true,
       "emailVerified": true,
       "credentials": [
@@ -86,6 +92,8 @@
       "id": "eaa46a1d-7ace-4ba8-9b2e-a4e4f8d654d1",
       "username": "eve",
       "email": "eve@tenant-c.example.com",
+      "firstName": "eve",
+      "lastName": "eve",
       "enabled": true,
       "emailVerified": true,
       "credentials": [
@@ -101,6 +109,8 @@
       "id": "13bac98c-abd2-424b-bf2f-e1c26dee0e71",
       "username": "frank",
       "email": "frank@tenant-c.example.com",
+      "firstName": "frank",
+      "lastName": "frank",
       "enabled": true,
       "emailVerified": true,
       "credentials": [
@@ -116,6 +126,8 @@
       "id": "e8f46251-0c7a-47c2-99b3-88c9496d8e9d",
       "username": "grace",
       "email": "grace@no-tenant.example.com",
+      "firstName": "grace",
+      "lastName": "grace",
       "enabled": true,
       "emailVerified": true,
       "credentials": [
@@ -131,6 +143,8 @@
       "id": "aaf9407d-41b3-4c33-a880-51dcdb133d8f",
       "username": "zorro",
       "email": "zorro@tenant-a.example.com",
+      "firstName": "zorro",
+      "lastName": "zorro",
       "enabled": true,
       "emailVerified": true,
       "credentials": [

@@ -71,6 +71,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<ITenantContext, TenantContext>();
+builder.Services.AddFusionCache();
 
 // Build Application
 WebApplication app = builder.Build();

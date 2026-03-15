@@ -22,7 +22,7 @@ public class TaskService : ITaskService
     {
         Guid? tenantId = _tenantContext.TenantId;
 
-        String cacheKey = $"tasks:{tenantId}";
+        String cacheKey = $"tenant:{tenantId}";
         return await _cache.GetOrSetAsync(
             cacheKey,
             async _ =>
@@ -59,7 +59,7 @@ public class TaskService : ITaskService
     public async Task<TaskDto?> GetTaskByIdAsync(Guid taskId)
     {
         Guid? tenantId = _tenantContext.TenantId;
-        String cacheKey = $"task:{tenantId}-{taskId}";
+        String cacheKey = $"tenant:{tenantId}:task:{taskId}";
 
         return await _cache.GetOrSetAsync(
             cacheKey,

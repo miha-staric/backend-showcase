@@ -18,7 +18,6 @@ public class TasksController : ControllerBase
         _logger = logger;
     }
 
-    // GET: api/tasks
     [HttpGet]
     public async Task<ActionResult<IEnumerable<TaskDto>>> GetAllTasks()
     {
@@ -32,7 +31,6 @@ public class TasksController : ControllerBase
         return Ok(tasks);
     }
 
-    // GET: api/tasks/1
     [HttpGet("{taskId}")]
     public async Task<ActionResult<TaskDto>> GetTaskById(Guid taskId)
     {

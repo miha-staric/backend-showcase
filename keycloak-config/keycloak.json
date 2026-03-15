@@ -126,6 +126,21 @@
         }
       ],
       "realmRoles": ["user"]
+    },
+    {
+      "id": "aaf9407d-41b3-4c33-a880-51dcdb133d8f",
+      "username": "zorro",
+      "email": "zorro@tenant-a.example.com",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "zorro123",
+          "temporary": false
+        }
+      ],
+      "realmRoles": ["user"]
     }
   ]
 }

@@ -14,44 +14,49 @@ public class TaskService : ITaskService
     public async Task<IEnumerable<TaskDto>> GetAllTasksAsync()
     {
         Guid? tenantId = _tenantContext.TenantId;
+
         IEnumerable<TaskDto> taskDtos = await _dbContext.Tasks
-            .Where(t => t.TenantId == tenantId)
-            .Include(t => t.AssignedUser)
-            .Select(t => new TaskDto
+        .Where(t => t.TenantId == tenantId)
+        .Include(t => t.AssignedUser)
+        .Select(t => new TaskDto
+        {
+            Id = t.Id,
+            TenantId = t.TenantId,
+            Title = t.Title,
+            Status = t.Status,
+            DueDate = t.DueDate,
+            AssignedUserId = t.AssignedUserId,
+            AssignedUser = new UserDto
             {
-                Id = t.Id,
-                TenantId = t.TenantId,
-                Title = t.Title,
-                Status = t.Status,
-                DueDate = t.DueDate,
-                AssignedUserId = t.AssignedUserId,
-                AssignedUser = new UserDto
-                {
-                    Id = t.AssignedUser.Id,
-                    Username = t.AssignedUser.Username,
-                    Email = t.AssignedUser.Email
-                }
-            })
-            .ToListAsync();
+                Id = t.AssignedUser.Id,
+                Username = t.AssignedUser.Username,
+                Email = t.AssignedUser.Email
+            }
+        })
+        .ToListAsync();
         return taskDtos;
     }
 
     public async Task<TaskDto?> GetTaskByIdAsync(Guid taskId)
     {
         Guid? tenantId = _tenantContext.TenantId;
+
         TaskDto? taskDto = await _dbContext.Tasks
           .Include(t => t.AssignedUser)
           .Select(t => new TaskDto
           {
               Id = t.Id,
+              TenantId = t.TenantId,
               Title = t.Title,
               Status = t.Status,
+              DueDate = t.DueDate,
+              AssignedUserId = t.AssignedUserId,
               AssignedUser = new UserDto
               {
                   Id = t.AssignedUser.Id,
-                  Username = t.AssignedUser.Username
-              },
-              DueDate = t.DueDate
+                  Username = t.AssignedUser.Username,
+                  Email = t.AssignedUser.Email
+              }
           })
           .FirstOrDefaultAsync(t => t.Id == taskId && t.TenantId == tenantId);
 

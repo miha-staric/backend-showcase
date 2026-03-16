@@ -7,9 +7,9 @@ public class GetTasksQueryHandler : IRequestHandler<GetTasksQuery, IEnumerable<T
     private readonly AppDbContext _db;
     private readonly IFusionCache _cache;
 
-    public GetTasksQueryHandler(AppDbContext db, IFusionCache cache)
+    public GetTasksQueryHandler(AppDbContext dbContext, IFusionCache cache)
     {
-        _db = db;
+        _db = dbContext;
         _cache = cache;
     }
 

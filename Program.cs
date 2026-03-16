@@ -1,3 +1,4 @@
+using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
@@ -73,6 +74,23 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<ITenantContext, TenantContext>();
 builder.Services.AddFusionCache();
 builder.Services.AddMediatR(typeof(Program));
+builder.Services.AddMassTransit(x =>
+{
+    // If you have consumers, register them here
+    // x.AddConsumer<TaskCreatedConsumer>();
+
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host("localhost", "/", h =>
+        {
+            h.Username("guest");
+            h.Password("guest");
+        });
+
+        cfg.ConfigureEndpoints(context);
+    });
+});
+
 
 // Build Application
 WebApplication app = builder.Build();

@@ -7,9 +7,9 @@ public class GetTaskByIdQueryHandler : IRequestHandler<GetTaskByIdQuery, TaskDto
     private readonly AppDbContext _db;
     private readonly IFusionCache _cache;
 
-    public GetTaskByIdQueryHandler(AppDbContext db, IFusionCache cache)
+    public GetTaskByIdQueryHandler(AppDbContext dbContext, IFusionCache cache)
     {
-        _db = db;
+        _db = dbContext;
         _cache = cache;
     }
 
@@ -27,13 +27,17 @@ public class GetTaskByIdQueryHandler : IRequestHandler<GetTaskByIdQuery, TaskDto
                     .Select(t => new TaskDto
                     {
                         Id = t.Id,
+                        TenantId = t.TenantId,
+                        Title = t.Title,
                         Status = t.Status,
+                        DueDate = t.DueDate,
+                        AssignedUserId = t.AssignedUserId,
                         AssignedUser = t.AssignedUser != null ? new UserDto
                         {
                             Id = t.AssignedUser.Id,
-                            Username = t.AssignedUser.Username
-                        } : null,
-                        DueDate = t.DueDate
+                            Username = t.AssignedUser.Username,
+                            Email = t.AssignedUser.Email
+                        } : null
                     })
                     .FirstOrDefaultAsync(cancellationToken);
 

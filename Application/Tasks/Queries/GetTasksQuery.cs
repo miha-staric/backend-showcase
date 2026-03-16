@@ -1,3 +1,3 @@
 using MediatR;
 
-public record GetTasksQuery(Guid TenantId) : IRequest<IEnumerable<TaskDto?>>;
+public record GetTasksQuery() : IRequest<IEnumerable<TaskDto?>>;

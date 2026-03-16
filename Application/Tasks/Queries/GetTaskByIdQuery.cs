@@ -1,3 +1,3 @@
 using MediatR;
 
-public record GetTaskByIdQuery(Guid TenantId, Guid TaskId) : IRequest<TaskDto?>;
+public record GetTaskByIdQuery(Guid TaskId) : IRequest<TaskDto?>;

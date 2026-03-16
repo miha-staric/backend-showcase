@@ -7,23 +7,28 @@ public class CreateTaskCommandHandler
 {
     private readonly AppDbContext _db;
     private readonly IPublishEndpoint _publishEndpoint;
+    private readonly ITenantContext _tenantContext;
 
     public CreateTaskCommandHandler(
         AppDbContext db,
-        IPublishEndpoint publishEndpoint)
+        IPublishEndpoint publishEndpoint,
+        ITenantContext tenantContext)
     {
         _db = db;
         _publishEndpoint = publishEndpoint;
+        _tenantContext = tenantContext;
     }
 
     public async Task<TaskDto> Handle(
         CreateTaskCommand request,
         CancellationToken cancellationToken)
     {
+        Guid? tenantId = _tenantContext.TenantId;
+
         var task = new TaskItem
         {
             Id = Guid.NewGuid(),
-            TenantId = request.TenantId,
+            TenantId = tenantId ?? throw new Exception("TenantId missing"),
             Title = request.Title,
             AssignedUserId = request.AssignedUserId,
             DueDate = request.DueDate,

@@ -6,16 +6,22 @@ public class GetTaskByIdQueryHandler : IRequestHandler<GetTaskByIdQuery, TaskDto
 {
     private readonly AppDbContext _db;
     private readonly IFusionCache _cache;
+    private readonly ITenantContext _tenantContext;
 
-    public GetTaskByIdQueryHandler(AppDbContext dbContext, IFusionCache cache)
+    public GetTaskByIdQueryHandler(
+        AppDbContext dbContext,
+        ITenantContext tenantContext,
+        IFusionCache cache)
     {
         _db = dbContext;
+        _tenantContext = tenantContext;
         _cache = cache;
     }
 
     public async Task<TaskDto?> Handle(GetTaskByIdQuery request, CancellationToken cancellationToken)
     {
-        string cacheKey = $"tenant:{request.TenantId}:task:{request.TaskId}";
+        Guid? tenantId = _tenantContext.TenantId;
+        string cacheKey = $"tenant:{tenantId}:task:{request.TaskId}";
 
         return await _cache.GetOrSetAsync(
             cacheKey,
@@ -23,7 +29,7 @@ public class GetTaskByIdQueryHandler : IRequestHandler<GetTaskByIdQuery, TaskDto
             {
                 var task = await _db.Tasks
                     .Include(t => t.AssignedUser)
-                    .Where(t => t.Id == request.TaskId && t.TenantId == request.TenantId)
+                    .Where(t => t.Id == request.TaskId && t.TenantId == tenantId)
                     .Select(t => new TaskDto
                     {
                         Id = t.Id,

@@ -1,5 +1,7 @@
 using MediatR;
 
+namespace Contracts;
+
 public class TaskCreatedEvent : INotification
 {
     public Guid TaskId { get; }

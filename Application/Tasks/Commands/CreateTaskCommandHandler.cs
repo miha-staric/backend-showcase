@@ -1,3 +1,4 @@
+using Contracts;
 using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;

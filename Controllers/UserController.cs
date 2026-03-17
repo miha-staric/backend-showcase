@@ -5,13 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class UserController : ControllerBase
+public class UsersController : ControllerBase
 {
-    private readonly ILogger<UserController> _logger;
+    private readonly ILogger<UsersController> _logger;
     private readonly IMediator _mediator;
 
-    public UserController(
-        ILogger<UserController> logger,
+    public UsersController(
+        ILogger<UsersController> logger,
         IMediator mediator)
     {
         _logger = logger;
@@ -24,5 +24,16 @@ public class UserController : ControllerBase
         IEnumerable<UserDto?> tasks = await _mediator.Send(new GetUsersQuery());
 
         return Ok(tasks);
+    }
+
+    [HttpGet("{userId}")]
+    public async Task<ActionResult<UserDto>> GetUserById(Guid userId)
+    {
+        UserDto? user = await _mediator.Send(new GetUserByIdQuery(userId));
+
+        if (user == null)
+            return NotFound();
+
+        return Ok(user);
     }
 }

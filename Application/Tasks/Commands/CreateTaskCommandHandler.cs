@@ -76,6 +76,7 @@ public class CreateTaskCommandHandler
         {
             Id = task.Id,
             Title = task.Title,
+            TenantId = task.TenantId,
             AssignedUserId = task.AssignedUserId,
             DueDate = task.DueDate,
             Status = task.Status

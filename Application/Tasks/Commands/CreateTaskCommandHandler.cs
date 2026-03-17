@@ -29,7 +29,7 @@ public class CreateTaskCommandHandler
         CancellationToken cancellationToken)
     {
         Guid? tenantId = _tenantContext.TenantId;
-        string cacheKey = $"tenant:{tenantId}";
+        string cacheKey = $"tenant:{tenantId}:tasks";
 
         var task = new TaskItem
         {

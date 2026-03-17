@@ -23,7 +23,7 @@ public class GetTasksQueryHandler : IRequestHandler<GetTasksQuery, IEnumerable<T
     {
         Guid? tenantId = _tenantContext.TenantId;
 
-        string cacheKey = $"tenant:{tenantId}";
+        string cacheKey = $"tenant:{tenantId}:tasks";
 
         return await _cache.GetOrSetAsync(
             cacheKey,

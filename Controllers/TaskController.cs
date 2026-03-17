@@ -45,7 +45,7 @@ public class TasksController : ControllerBase
 
         return CreatedAtAction(
             nameof(GetTaskById),
-            new { id = result.Id },
+            new { taskId = result.Id },
             result);
     }
 

@@ -34,7 +34,7 @@ public class AppDbContext : DbContext
         User frank = new User { Id = Guid.Parse("13bac98c-abd2-424b-bf2f-e1c26dee0e71"), Username = "frank", Email = "frank@tenant-c.example.com" };
         UserTenant userTenantEveC = new UserTenant { UserId = eve.Id, TenantId = tenantC.Id };
         UserTenant userTenantFrankC = new UserTenant { UserId = frank.Id, TenantId = tenantC.Id };
-        // Alice is a member of both Tenant-A and Tenan-C
+        // alice is a member of both tenant-A and tenan-C
         UserTenant userTenantAliceC = new UserTenant { UserId = alice.Id, TenantId = tenantC.Id };
 
         // tenant-d - has no members

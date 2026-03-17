@@ -84,7 +84,9 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<TaskItem>()
           .HasOne(t => t.AssignedUser)
-          .WithMany(u => u.Tasks);
+          .WithMany(u => u.Tasks)
+          .HasForeignKey(t => t.AssignedUserId)
+          .OnDelete(DeleteBehavior.SetNull); // Prevents cascade delete
 
         modelBuilder.Entity<TaskItem>(entity =>
         {

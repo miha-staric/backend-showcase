@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace TaskManagementApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260315133750_InitialCreate")]
+    [Migration("20260317132546_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -240,7 +240,8 @@ namespace TaskManagementApi.Migrations
                 {
                     b.HasOne("User", "AssignedUser")
                         .WithMany("Tasks")
-                        .HasForeignKey("AssignedUserId");
+                        .HasForeignKey("AssignedUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("AssignedUser");
                 });

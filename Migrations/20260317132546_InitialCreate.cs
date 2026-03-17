@@ -69,7 +69,8 @@ namespace TaskManagementApi.Migrations
                         name: "FK_Tasks_Users_AssignedUserId",
                         column: x => x.AssignedUserId,
                         principalTable: "Users",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.InsertData(

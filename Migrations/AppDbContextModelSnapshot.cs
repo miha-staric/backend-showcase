@@ -237,7 +237,8 @@ namespace TaskManagementApi.Migrations
                 {
                     b.HasOne("User", "AssignedUser")
                         .WithMany("Tasks")
-                        .HasForeignKey("AssignedUserId");
+                        .HasForeignKey("AssignedUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("AssignedUser");
                 });

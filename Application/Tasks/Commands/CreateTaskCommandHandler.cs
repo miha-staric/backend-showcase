@@ -43,7 +43,6 @@ public class CreateTaskCommandHandler
 
         var userId = request.AssignedUserId;
 
-        // Null or Guid.Empty is OK
         if (userId == null || userId == Guid.Empty)
         {
             task.AssignedUserId = null;
@@ -71,7 +70,6 @@ public class CreateTaskCommandHandler
 
         await _db.SaveChangesAsync(cancellationToken);
 
-        // publish event for other services
         await _publishEndpoint.Publish(new TaskCreatedEvent(task.Id));
 
         return new TaskDto

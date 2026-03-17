@@ -12,8 +12,7 @@ public class TasksController : ControllerBase
 
     public TasksController(
         ILogger<TasksController> logger,
-        IMediator mediator
-        )
+        IMediator mediator)
     {
         _logger = logger;
         _mediator = mediator;
@@ -48,5 +47,21 @@ public class TasksController : ControllerBase
             nameof(GetTaskById),
             new { id = result.Id },
             result);
+    }
+
+    [HttpPut("{taskId}")]
+    public async Task<ActionResult<TaskDto>> UpdateTask(
+      Guid taskId,
+      [FromBody] UpdateTaskCommand command)
+    {
+        if (taskId != command.TaskId)
+            return BadRequest("Task ID mismatch");
+
+        TaskDto? updatedTask = await _mediator.Send(command);
+
+        if (updatedTask == null)
+            return NotFound();
+
+        return Ok(updatedTask);
     }
 }

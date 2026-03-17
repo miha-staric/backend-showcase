@@ -1,23 +1,39 @@
+using Contracts;
 using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using ZiggyCreatures.Caching.Fusion;
 
 public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, TaskDto?>
 {
-    private readonly AppDbContext _db;
-    private readonly IPublishEndpoint _bus;
+    private readonly AppDbContext _dbContext;
+    private readonly IPublishEndpoint _publishEndpoint;
+    private readonly ITenantContext _tenantContext;
+    private readonly IFusionCache _cache;
 
-    public UpdateTaskCommandHandler(AppDbContext db, IPublishEndpoint bus)
+    public UpdateTaskCommandHandler(
+        AppDbContext db,
+        IPublishEndpoint publishEndpoint,
+        ITenantContext tenantContext,
+        IFusionCache cache)
     {
-        _db = db;
-        _bus = bus;
+        _dbContext = db;
+        _publishEndpoint = publishEndpoint;
+        _tenantContext = tenantContext;
+        _cache = cache;
     }
 
     public async Task<TaskDto?> Handle(UpdateTaskCommand request, CancellationToken cancellationToken)
     {
-        var task = await _db.Tasks.FirstOrDefaultAsync(t => t.Id == request.TaskId && t.TenantId == request.TenantId);
+        Guid? tenantId = _tenantContext.TenantId;
+        string cacheKey = $"tenant:{request.TenantId}:task:{request.TaskId}";
 
-        if (task == null) return null;
+        TaskItem? task = await _dbContext.Tasks.FirstOrDefaultAsync(
+            t => t.Id == request.TaskId
+            && t.TenantId == request.TenantId);
+
+        if (task == null)
+            return null;
 
         if (request.Title != null)
             task.Title = request.Title;
@@ -27,8 +43,9 @@ public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, TaskD
             task.DueDate = request.DueDate;
         task.Status = (TaskStatus)request.Status;
 
-        await _db.SaveChangesAsync(cancellationToken);
-        await _bus.Publish(new TaskUpdatedEvent(task.Id));
+        await _cache.RemoveAsync(cacheKey);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        await _publishEndpoint.Publish(new TaskUpdatedEvent(task.Id));
 
         return new TaskDto
         {

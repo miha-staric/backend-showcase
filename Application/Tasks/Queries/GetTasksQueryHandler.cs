@@ -40,7 +40,7 @@ public class GetTasksQueryHandler : IRequestHandler<GetTasksQuery, IEnumerable<T
                     Status = t.Status,
                     DueDate = t.DueDate,
                     AssignedUserId = t.AssignedUserId,
-                    AssignedUser = new UserDto
+                    AssignedUser = t.AssignedUser == null ? null : new UserDto
                     {
                         Id = t.AssignedUser.Id,
                         Username = t.AssignedUser.Username,

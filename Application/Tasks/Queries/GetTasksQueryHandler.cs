@@ -31,7 +31,7 @@ public class GetTasksQueryHandler : IRequestHandler<GetTasksQuery, IEnumerable<T
             {
                 IEnumerable<TaskDto> taskDtos = await _db.Tasks
                 .Where(t => t.TenantId == tenantId)
-                .Include(t => t.AssignedUser)
+                .Include(t => t.PrimaryAssigneeUser)
                 .Select(t => new TaskDto
                 {
                     Id = t.Id,
@@ -39,12 +39,12 @@ public class GetTasksQueryHandler : IRequestHandler<GetTasksQuery, IEnumerable<T
                     Title = t.Title,
                     Status = t.Status,
                     DueDate = t.DueDate,
-                    AssignedUserId = t.AssignedUserId,
-                    AssignedUser = t.AssignedUser == null ? null : new UserDto
+                    AssignedUserId = t.PrimaryAssigneeId,
+                    AssignedUser = t.PrimaryAssigneeUser == null ? null : new UserDto
                     {
-                        Id = t.AssignedUser.Id,
-                        Username = t.AssignedUser.Username,
-                        Email = t.AssignedUser.Email
+                        Id = t.PrimaryAssigneeUser.Id,
+                        Username = t.PrimaryAssigneeUser.Username,
+                        Email = t.PrimaryAssigneeUser.Email
                     }
                 })
                 .ToListAsync();

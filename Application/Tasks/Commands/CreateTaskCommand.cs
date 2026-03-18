@@ -3,6 +3,6 @@ using MediatR;
 public record CreateTaskCommand(
     string Title,
     string Description,
-    Guid? AssignedUserId,
+    Guid? PrimaryAssigneeId,
     DateTime? DueDate
 ) : IRequest<TaskDto>;

@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using Serilog;
+using Services.Caching;
 using System.Text.Json.Serialization;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -90,7 +91,7 @@ builder.Services.AddMassTransit(x =>
         cfg.ConfigureEndpoints(context);
     });
 });
-
+builder.Services.AddSingleton<UserCacheHelper>();
 
 // Build Application
 WebApplication app = builder.Build();
@@ -101,6 +102,28 @@ if (app.Environment.IsDevelopment())
             options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1;
         });
     app.UseSwaggerUI();
+
+    if (args.Contains("--seed"))
+    {
+        using IServiceScope scope = app.Services.CreateScope();
+
+        AppDbContext db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        Boolean reset = args.Contains("--reset");
+
+        if (reset)
+        {
+            Console.WriteLine("Resetting database...");
+            await db.Database.EnsureDeletedAsync();
+            await db.Database.MigrateAsync();
+            Console.WriteLine("Database reset complete.");
+        }
+
+        Console.WriteLine("Seeding test data...");
+        await DbSeeder.SeedTestData(db);
+        Console.WriteLine("Seeding complete!");
+        return;
+    }
 }
 app.UseHttpsRedirection();
 app.UseAuthentication();

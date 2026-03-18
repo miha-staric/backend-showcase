@@ -28,7 +28,7 @@ public class GetTaskByIdQueryHandler : IRequestHandler<GetTaskByIdQuery, TaskDto
             async _ =>
             {
                 var task = await _db.Tasks
-                    .Include(t => t.AssignedUser)
+                    .Include(t => t.PrimaryAssigneeId)
                     .Where(t => t.Id == request.TaskId && t.TenantId == tenantId)
                     .Select(t => new TaskDto
                     {
@@ -37,12 +37,12 @@ public class GetTaskByIdQueryHandler : IRequestHandler<GetTaskByIdQuery, TaskDto
                         Title = t.Title,
                         Status = t.Status,
                         DueDate = t.DueDate,
-                        AssignedUserId = t.AssignedUserId,
-                        AssignedUser = t.AssignedUser != null ? new UserDto
+                        AssignedUserId = t.PrimaryAssigneeId,
+                        AssignedUser = t.PrimaryAssigneeUser != null ? new UserDto
                         {
-                            Id = t.AssignedUser.Id,
-                            Username = t.AssignedUser.Username,
-                            Email = t.AssignedUser.Email
+                            Id = t.PrimaryAssigneeUser.Id,
+                            Username = t.PrimaryAssigneeUser.Username,
+                            Email = t.PrimaryAssigneeUser.Email
                         } : null
                     })
                     .FirstOrDefaultAsync(cancellationToken);

@@ -38,7 +38,7 @@ public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, TaskD
         if (request.Title != null)
             task.Title = request.Title;
         if (request.AssignedUserId.HasValue)
-            task.AssignedUserId = request.AssignedUserId;
+            task.PrimaryAssigneeId = request.AssignedUserId;
         if (request.DueDate.HasValue)
             task.DueDate = request.DueDate;
         task.Status = (TaskStatus)request.Status;
@@ -51,7 +51,7 @@ public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, TaskD
         {
             Id = task.Id,
             Title = task.Title,
-            AssignedUserId = task.AssignedUserId,
+            AssignedUserId = task.PrimaryAssigneeId,
             DueDate = task.DueDate,
             Status = task.Status
         };

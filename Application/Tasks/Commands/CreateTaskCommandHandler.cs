@@ -7,18 +7,18 @@ using ZiggyCreatures.Caching.Fusion;
 public class CreateTaskCommandHandler
     : IRequestHandler<CreateTaskCommand, TaskDto>
 {
-    private readonly AppDbContext _db;
+    private readonly AppDbContext _dbContext;
     private readonly IPublishEndpoint _publishEndpoint;
     private readonly ITenantContext _tenantContext;
     private readonly IFusionCache _cache;
 
     public CreateTaskCommandHandler(
-        AppDbContext db,
+        AppDbContext dbContext,
         IPublishEndpoint publishEndpoint,
         ITenantContext tenantContext,
         IFusionCache cache)
     {
-        _db = db;
+        _dbContext = dbContext;
         _publishEndpoint = publishEndpoint;
         _tenantContext = tenantContext;
         _cache = cache;
@@ -28,47 +28,53 @@ public class CreateTaskCommandHandler
         CreateTaskCommand request,
         CancellationToken cancellationToken)
     {
-        Guid? tenantId = _tenantContext.TenantId;
-        string cacheKey = $"tenant:{tenantId}:tasks";
+        Guid tenantId = _tenantContext.TenantId
+          ?? throw new InvalidOperationException("TenantId missing");
 
-        var task = new TaskItem
+        String cacheKey = $"tenant:{tenantId}:tasks";
+
+        TaskItem task = new TaskItem
         {
             Id = Guid.NewGuid(),
-            TenantId = tenantId ?? throw new Exception("TenantId missing"),
+            TenantId = tenantId,
             Title = request.Title,
-            AssignedUserId = request.AssignedUserId,
+            PrimaryAssigneeId = request.PrimaryAssigneeId,
             DueDate = request.DueDate,
             Status = TaskStatus.New
         };
 
-        var userId = request.AssignedUserId;
+        _dbContext.Tasks.Add(task);
 
-        if (userId == null || userId == Guid.Empty)
+        if (request.PrimaryAssigneeId != null && request.PrimaryAssigneeId != Guid.Empty)
         {
-            task.AssignedUserId = null;
-        }
-        else
-        {
-            Boolean userExists = await _db.Users
-                .AnyAsync(u => u.Id == userId);
+            Guid userId = request.PrimaryAssigneeId.Value;
+
+            Boolean userExists = await _dbContext.Users.AnyAsync(u => u.Id == userId, cancellationToken);
 
             if (!userExists)
-                throw new Exception("Assigned user does not exist.");
+                throw new InvalidOperationException("Primary assignee user does not exist.");
 
-            Boolean userTenantExists = await _db.UserTenant
-                .AnyAsync(ut => ut.UserId == userId && ut.TenantId == tenantId);
+            Boolean userTenantExists = await _dbContext.UserTenant
+                .AnyAsync(ut => ut.UserId == userId && ut.TenantId == tenantId, cancellationToken);
 
             if (!userTenantExists)
-                throw new Exception("User is not part of this tenant");
+                throw new InvalidOperationException("User is not part of this tenant.");
 
-            task.AssignedUserId = userId;
+            UserTask userTask = new UserTask
+            {
+                UserId = userId,
+                TaskItemId = task.Id,
+                TenantId = tenantId,
+                Role = Roles.Assignee,
+                CreatedAt = DateTimeOffset.UtcNow
+            };
+
+            _dbContext.UserTask.Add(userTask);
         }
-
-        _db.Tasks.Add(task);
 
         await _cache.RemoveAsync(cacheKey);
 
-        await _db.SaveChangesAsync(cancellationToken);
+        await _dbContext.SaveChangesAsync(cancellationToken);
 
         await _publishEndpoint.Publish(new TaskCreatedEvent(task.Id));
 
@@ -77,7 +83,7 @@ public class CreateTaskCommandHandler
             Id = task.Id,
             Title = task.Title,
             TenantId = task.TenantId,
-            AssignedUserId = task.AssignedUserId,
+            AssignedUserId = task.PrimaryAssigneeId,
             DueDate = task.DueDate,
             Status = task.Status
         };

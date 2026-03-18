@@ -28,7 +28,7 @@ public class GetTaskByIdQueryHandler : IRequestHandler<GetTaskByIdQuery, TaskDto
             async _ =>
             {
                 var task = await _db.Tasks
-                    .Include(t => t.PrimaryAssigneeId)
+                    .Include(t => t.PrimaryAssigneeUser)
                     .Where(t => t.Id == request.TaskId && t.TenantId == tenantId)
                     .Select(t => new TaskDto
                     {

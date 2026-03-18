@@ -1,3 +1,4 @@
+using FluentValidation;
 using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -92,6 +93,7 @@ builder.Services.AddMassTransit(x =>
     });
 });
 builder.Services.AddSingleton<UserCacheHelper>();
+builder.Services.AddTransient<IValidator<CreateUserCommand>, UserValidator>();
 
 // Build Application
 WebApplication app = builder.Build();

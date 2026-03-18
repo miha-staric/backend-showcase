@@ -1,4 +1,5 @@
 using Contracts;
+using FluentValidation;
 using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -11,23 +12,31 @@ public class CreateUserCommandHandler
     private readonly IPublishEndpoint _publishEndpoint;
     private readonly ITenantContext _tenantContext;
     private readonly UserCacheHelper _userCacheHelper;
+    private readonly IValidator<CreateUserCommand> _userValidator;
 
     public CreateUserCommandHandler(
         AppDbContext dbContext,
         IPublishEndpoint publishEndpoint,
         ITenantContext tenantContext,
-        UserCacheHelper userCacheHelper)
+        UserCacheHelper userCacheHelper,
+        IValidator<CreateUserCommand> userValidator)
     {
         _dbContext = dbContext;
         _publishEndpoint = publishEndpoint;
         _tenantContext = tenantContext;
         _userCacheHelper = userCacheHelper;
+        _userValidator = userValidator;
     }
 
     public async Task<UserDto> Handle(
         CreateUserCommand request,
         CancellationToken cancellationToken)
     {
+        var validationResult = await _userValidator.ValidateAsync(request, cancellationToken);
+
+        if (!validationResult.IsValid)
+            throw new ValidationException(validationResult.Errors);
+
         Guid tenantId = _tenantContext.TenantId
             ?? throw new InvalidOperationException("TenantId is required to create a user.");
 

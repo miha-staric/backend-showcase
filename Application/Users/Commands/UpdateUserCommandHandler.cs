@@ -1,3 +1,4 @@
+using Contracts;
 using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -44,6 +45,8 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, UserD
         await _userCacheHelper.InvalidateUserCacheAsync(tenantId, user.Id);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        await _publishEndpoint.Publish(new UserUpdatedEvent(user.Id));
 
         return new UserDto
         {

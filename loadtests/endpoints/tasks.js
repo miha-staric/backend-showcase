@@ -1,15 +1,15 @@
 import http from "k6/http";
 import { check } from "k6";
-import { API_BASE_URL, TENANT_ID } from "../config/config.js";
+import { API_BASE_URL } from "../config/config.js";
 import { getToken } from "../utils/auth.js"
 
-export function getTasks(username, password) {
+export function getTasks(username, password, tenant_id) {
     const token = getToken(username, password);
 
     const params = {
         headers: {
             "Authorization": `Bearer ${token}`,
-            "X-Tenant-Id": TENANT_ID
+            "X-Tenant-Id": tenant_id
         }
     };
 
@@ -20,13 +20,13 @@ export function getTasks(username, password) {
     });
 }
 
-export function getTaskById(taskId, username, password) {
+export function getTaskById(taskId, username, password, tenant_id) {
     const token = getToken(username, password);
 
     const params = {
         headers: {
             "Authorization": `Bearer ${token}`,
-            "X-Tenant-Id": TENANT_ID
+            "X-Tenant-Id": tenant_id
         }
     };
 

@@ -14,7 +14,6 @@ export default function () {
     const user = TEST_USERS[Math.floor(Math.random() * TEST_USERS.length)];
     const existingTask = EXISTING_TASKS[Math.floor(Math.random() * EXISTING_TASKS.length)];
 
-    getTasks(user.username, user.password);
-    getTaskById(existingTask, user.username, user.password);
+    getTasks(user.username, user.password, user.tenant_id);
+    getTaskById(existingTask, user.username, user.password, user.tenant_id);
 }
-

@@ -15,7 +15,8 @@ services:
       - mynetwork
 
   keycloak:
-    image: quay.io/keycloak/keycloak:26.5.2
+    image: quay.io/keycloak/keycloak:26.5
+    container_name: task-keycloak
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin

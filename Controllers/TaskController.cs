@@ -41,12 +41,12 @@ public class TasksController : ControllerBase
     public async Task<ActionResult<TaskDto>> CreateTask(
         [FromBody] CreateTaskCommand command)
     {
-        TaskDto? result = await _mediator.Send(command);
+        TaskDto? createdTask = await _mediator.Send(command);
 
         return CreatedAtAction(
             nameof(GetTaskById),
-            new { taskId = result.Id },
-            result);
+            new { taskId = createdTask.Id },
+            createdTask);
     }
 
     [HttpPut("{taskId}")]

@@ -37,12 +37,12 @@ public class UsersController : ControllerBase
     public async Task<ActionResult<UserDto>> CreateUser(
         [FromBody] CreateUserCommand command)
     {
-        UserDto? result = await _mediator.Send(command);
+        UserDto? createdUser = await _mediator.Send(command);
 
         return CreatedAtAction(
             nameof(GetUserById),
-            new { userId = result.Id },
-            result);
+            new { userId = createdUser.Id },
+            createdUser);
     }
 
     [HttpPut("{userId}")]

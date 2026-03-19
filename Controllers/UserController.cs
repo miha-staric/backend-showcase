@@ -7,14 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 [Authorize]
 public class UsersController : ControllerBase
 {
-    private readonly ILogger<UsersController> _logger;
     private readonly IMediator _mediator;
 
-    public UsersController(
-        ILogger<UsersController> logger,
-        IMediator mediator)
+    public UsersController(IMediator mediator)
     {
-        _logger = logger;
         _mediator = mediator;
     }
 

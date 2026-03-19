@@ -21,9 +21,9 @@ public class UsersController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<UserDto>>> GetAllUsers()
     {
-        IEnumerable<UserDto?> tasks = await _mediator.Send(new GetUsersQuery());
+        IEnumerable<UserDto?> users = await _mediator.Send(new GetUsersQuery());
 
-        return Ok(tasks);
+        return Ok(users);
     }
 
     [HttpGet("{userId}")]
@@ -64,5 +64,4 @@ public class UsersController : ControllerBase
 
         return Ok(updatedUser);
     }
-
 }

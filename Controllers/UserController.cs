@@ -34,21 +34,18 @@ public class UsersController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<UserDto>> CreateUser(
-        [FromBody] CreateUserCommand command)
+    public async Task<ActionResult<UserDto>> CreateUser([FromBody] CreateUserCommand command)
     {
         UserDto? createdUser = await _mediator.Send(command);
 
-        return CreatedAtAction(
-            nameof(GetUserById),
-            new { userId = createdUser.Id },
-            createdUser);
+        return CreatedAtAction(nameof(GetUserById), new { userId = createdUser.Id }, createdUser);
     }
 
     [HttpPut("{userId}")]
     public async Task<ActionResult<UserDto>> UpdateUser(
-      Guid taskId,
-      [FromBody] UpdateUserCommand command)
+        Guid taskId,
+        [FromBody] UpdateUserCommand command
+    )
     {
         if (taskId != command.UserId)
             return BadRequest("User ID mismatch");
@@ -59,5 +56,16 @@ public class UsersController : ControllerBase
             return NotFound();
 
         return Ok(updatedUser);
+    }
+
+    [HttpDelete("{userId}")]
+    public async Task<ActionResult> DeleteUser(Guid userId)
+    {
+        var result = await _mediator.Send(new DeleteUserCommand(userId));
+
+        if (!result)
+            return NotFound();
+
+        return NoContent();
     }
 }

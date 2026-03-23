@@ -4,14 +4,15 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Services.Caching;
 
-public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand, Boolean>
+public class RemoveUserFromTenantCommandHandler
+    : IRequestHandler<RemoveUserFromTenantCommand, Boolean>
 {
     private readonly AppDbContext _dbContext;
     private readonly IPublishEndpoint _publishEndpoint;
     private readonly ITenantContext _tenantContext;
     private readonly UserCacheHelper _userCacheHelper;
 
-    public DeleteUserCommandHandler(
+    public RemoveUserFromTenantCommandHandler(
         AppDbContext dbContext,
         IPublishEndpoint publishEndpoint,
         ITenantContext tenantContext,
@@ -25,7 +26,7 @@ public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand, Boole
     }
 
     public async Task<Boolean> Handle(
-        DeleteUserCommand request,
+        RemoveUserFromTenantCommand request,
         CancellationToken cancellationToken
     )
     {
@@ -33,23 +34,21 @@ public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand, Boole
             _tenantContext.TenantId
             ?? throw new InvalidOperationException("TenantId is required to delete a user.");
 
-        User? user = await _dbContext.Users.FindAsync(
-            new object[] { request.UserId },
+        UserTenant? userTenant = await _dbContext.UserTenant.FirstOrDefaultAsync(
+            ut => ut.UserId == request.UserId && ut.TenantId == tenantId,
             cancellationToken
         );
 
-        if (user == null)
+        if (userTenant == null)
             return false;
 
-        // TODO - check UserTenant if it has TenantId
+        _dbContext.UserTenant.Remove(userTenant);
 
-        _dbContext.Users.Remove(user);
-
-        await _userCacheHelper.InvalidateUserCacheAsync(tenantId, user.Id);
+        await _userCacheHelper.InvalidateUserCacheAsync(tenantId, request.UserId);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        await _publishEndpoint.Publish(new UserDeletedEvent(user.Id));
+        await _publishEndpoint.Publish(new UserRemovedFromTenantEvent(tenantId, request.UserId));
 
         return true;
     }

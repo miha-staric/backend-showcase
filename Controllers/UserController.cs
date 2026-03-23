@@ -61,7 +61,7 @@ public class UsersController : ControllerBase
     [HttpDelete("{userId}")]
     public async Task<ActionResult> DeleteUser(Guid userId)
     {
-        var result = await _mediator.Send(new DeleteUserCommand(userId));
+        Boolean result = await _mediator.Send(new RemoveUserFromTenantCommand(userId));
 
         if (!result)
             return NotFound();

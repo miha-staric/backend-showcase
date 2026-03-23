@@ -66,10 +66,10 @@ Side Channels:
 
 ## 📦 Core Entities
 
-- **Organization** (tenant)
+- **Tenant** (organization)
 - **User** (linked to KeyCloak ID)
 - **Task** (title, description, status, assigned user, due date)
-- **TaskComment** (optional, adds depth without complexity)
+- **TaskComment** (comments, linked to tasks and users)
 
 ## 🔐 KeyCloak Integration and Multi-tenancy
 

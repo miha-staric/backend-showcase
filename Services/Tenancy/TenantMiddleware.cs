@@ -1,5 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
 public class TenantMiddleware
 {
@@ -13,8 +14,17 @@ public class TenantMiddleware
     public async Task InvokeAsync(
         HttpContext context,
         ITenantContext tenantContext,
-        AppDbContext db)
+        AppDbContext db
+    )
     {
+        Endpoint? endpoint = context.GetEndpoint();
+        // Skip auth check if AllowAnonymous is applied
+        if (endpoint?.Metadata?.GetMetadata<IAllowAnonymous>() != null)
+        {
+            await _next(context);
+            return;
+        }
+
         if (!context.Request.Headers.TryGetValue("X-Tenant-Id", out var tenantHeader))
         {
             context.Response.StatusCode = 400;
@@ -37,10 +47,9 @@ public class TenantMiddleware
             return;
         }
 
-        bool userInTenant = await db.UserTenant
-            .AnyAsync(x =>
-                x.TenantId == tenantId &&
-                x.UserId == Guid.Parse(userId));
+        bool userInTenant = await db.UserTenant.AnyAsync(x =>
+            x.TenantId == tenantId && x.UserId == Guid.Parse(userId)
+        );
 
         if (!userInTenant)
         {

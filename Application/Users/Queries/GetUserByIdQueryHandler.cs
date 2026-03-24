@@ -11,14 +11,18 @@ public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserDto
     public GetUserByIdQueryHandler(
         AppDbContext dbContext,
         ITenantContext tenantContext,
-        IFusionCache cache)
+        IFusionCache cache
+    )
     {
         _db = dbContext;
         _tenantContext = tenantContext;
         _cache = cache;
     }
 
-    public async Task<UserDto?> Handle(GetUserByIdQuery request, CancellationToken cancellationToken)
+    public async Task<UserDto?> Handle(
+        GetUserByIdQuery request,
+        CancellationToken cancellationToken
+    )
     {
         Guid? tenantId = _tenantContext.TenantId;
         string cacheKey = $"tenant:{tenantId}:user:{request.UserId}";
@@ -27,13 +31,15 @@ public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserDto
             cacheKey,
             async _ =>
             {
-                var user = await _db.Users
-                    .Where(u => u.Id == request.UserId)
+                var user = await _db
+                    .Users.Where(u =>
+                        u.Id == request.UserId && u.UserTenants.Any(ut => ut.TenantId == tenantId)
+                    )
                     .Select(u => new UserDto
                     {
                         Id = u.Id,
                         Username = u.Username,
-                        Email = u.Email
+                        Email = u.Email,
                     })
                     .FirstOrDefaultAsync(cancellationToken);
 
@@ -42,7 +48,8 @@ public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserDto
             new FusionCacheEntryOptions
             {
                 Duration = TimeSpan.FromMinutes(5),
-                IsFailSafeEnabled = true
-            });
+                IsFailSafeEnabled = true,
+            }
+        );
     }
 }

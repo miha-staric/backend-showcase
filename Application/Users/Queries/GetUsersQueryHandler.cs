@@ -8,18 +8,21 @@ public class GetUsersQueryHandler : IRequestHandler<GetUsersQuery, IEnumerable<U
     private readonly IFusionCache _cache;
     private readonly ITenantContext _tenantContext;
 
-
     public GetUsersQueryHandler(
         AppDbContext dbContext,
         IFusionCache cache,
-        ITenantContext tenantContext)
+        ITenantContext tenantContext
+    )
     {
         _db = dbContext;
         _cache = cache;
         _tenantContext = tenantContext;
     }
 
-    public async Task<IEnumerable<UserDto?>> Handle(GetUsersQuery request, CancellationToken cancellationToken)
+    public async Task<IEnumerable<UserDto?>> Handle(
+        GetUsersQuery request,
+        CancellationToken cancellationToken
+    )
     {
         Guid? tenantId = _tenantContext.TenantId;
 
@@ -29,21 +32,22 @@ public class GetUsersQueryHandler : IRequestHandler<GetUsersQuery, IEnumerable<U
             cacheKey,
             async _ =>
             {
-                IEnumerable<UserDto> userDtos = await _db.Users
-                .Select(u => new UserDto
-                {
-                    Id = u.Id,
-                    Username = u.Username,
-                    Email = u.Email
-                })
-                .ToListAsync();
+                IEnumerable<UserDto> userDtos = await _db
+                    .Users.Where(u => u.UserTenants.Any(ut => ut.TenantId == tenantId))
+                    .Select(u => new UserDto
+                    {
+                        Id = u.Id,
+                        Username = u.Username,
+                        Email = u.Email,
+                    })
+                    .ToListAsync();
                 return userDtos;
             },
             new FusionCacheEntryOptions
             {
                 Duration = TimeSpan.FromMinutes(5),
-                IsFailSafeEnabled = true
-            });
+                IsFailSafeEnabled = true,
+            }
+        );
     }
 }
-

@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Services.Caching;
 using ZiggyCreatures.Caching.Fusion;
 
 public class GetUsersQueryHandler : IRequestHandler<GetUsersQuery, IEnumerable<UserDto?>>
@@ -7,16 +8,19 @@ public class GetUsersQueryHandler : IRequestHandler<GetUsersQuery, IEnumerable<U
     private readonly AppDbContext _db;
     private readonly IFusionCache _cache;
     private readonly ITenantContext _tenantContext;
+    private readonly UserCacheHelper _userCacheHelper;
 
     public GetUsersQueryHandler(
         AppDbContext dbContext,
         IFusionCache cache,
-        ITenantContext tenantContext
+        ITenantContext tenantContext,
+        UserCacheHelper userCacheHelper
     )
     {
         _db = dbContext;
         _cache = cache;
         _tenantContext = tenantContext;
+        _userCacheHelper = userCacheHelper;
     }
 
     public async Task<IEnumerable<UserDto?>> Handle(
@@ -24,17 +28,18 @@ public class GetUsersQueryHandler : IRequestHandler<GetUsersQuery, IEnumerable<U
         CancellationToken cancellationToken
     )
     {
-        Guid? tenantId = _tenantContext.TenantId;
+        Guid tenantId =
+            _tenantContext.TenantId
+            ?? throw new InvalidOperationException("TenantId is required to query users.");
 
-        string cacheKey = $"tenant:{tenantId}:users";
+        string cacheKey = _userCacheHelper.GetUsersKey(tenantId);
 
         return await _cache.GetOrSetAsync(
             cacheKey,
             async _ =>
             {
                 IEnumerable<UserDto> userDtos = await _db
-                    .Users.Where(u => u.UserTenants.Any(ut => ut.TenantId == tenantId))
-                    .Select(u => new UserDto
+                    .Users.Select(u => new UserDto
                     {
                         Id = u.Id,
                         Username = u.Username,

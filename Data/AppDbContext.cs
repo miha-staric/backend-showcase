@@ -7,14 +7,24 @@ public class AppDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<UserTask> UserTask { get; set; }
     public DbSet<UserTenant> UserTenant { get; set; }
+    public Guid? CurrentTenantId => _tenantContext?.TenantId;
 
-    public AppDbContext(DbContextOptions<AppDbContext> options)
+    private readonly ITenantContext _tenantContext;
+
+    public AppDbContext(DbContextOptions<AppDbContext> options, ITenantContext tenantContext)
         : base(options)
     {
+        _tenantContext = tenantContext;
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder
+            .Entity<User>()
+            .HasQueryFilter(u => u.UserTenants.Any(ut => ut.TenantId == CurrentTenantId));
+
+        modelBuilder.Entity<TaskItem>().HasQueryFilter(t => t.TenantId == CurrentTenantId);
+
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(u => u.Id);
@@ -31,7 +41,8 @@ public class AppDbContext : DbContext
             entity.HasKey(t => t.Id);
             entity.HasIndex(t => t.TenantId);
 
-            entity.HasOne(t => t.PrimaryAssigneeUser)
+            entity
+                .HasOne(t => t.PrimaryAssigneeUser)
                 .WithMany() // no back reference
                 .HasForeignKey(t => t.PrimaryAssigneeId)
                 .OnDelete(DeleteBehavior.SetNull);
@@ -41,22 +52,25 @@ public class AppDbContext : DbContext
         {
             entity.HasKey(ut => new { ut.UserId, ut.TenantId });
 
-            entity.HasOne(ut => ut.User)
-                  .WithMany(u => u.UserTenants)
-                  .HasForeignKey(ut => ut.UserId)
-                  .OnDelete(DeleteBehavior.Cascade);
+            entity
+                .HasOne(ut => ut.User)
+                .WithMany(u => u.UserTenants)
+                .HasForeignKey(ut => ut.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<UserTask>(entity =>
         {
             entity.HasKey(ut => new { ut.UserId, ut.TaskItemId });
 
-            entity.HasOne(ut => ut.User)
+            entity
+                .HasOne(ut => ut.User)
                 .WithMany(u => u.UserTasks)
                 .HasForeignKey(ut => ut.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            entity.HasOne(ut => ut.TaskItem)
+            entity
+                .HasOne(ut => ut.TaskItem)
                 .WithMany(t => t.UserTasks)
                 .HasForeignKey(ut => ut.TaskItemId)
                 .OnDelete(DeleteBehavior.Cascade);

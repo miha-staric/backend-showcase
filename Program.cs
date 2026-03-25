@@ -115,6 +115,7 @@ builder.Services.AddMassTransit(x =>
     );
 });
 builder.Services.AddSingleton<UserCacheHelper>();
+builder.Services.AddSingleton<TaskCacheHelper>();
 builder.Services.AddTransient<IValidator<CreateUserCommand>, UserValidator>();
 builder.Services.AddHttpClient<GetAccessTokenCommandHandler>(client =>
 {

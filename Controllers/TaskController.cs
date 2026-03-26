@@ -10,9 +10,7 @@ public class TasksController : ControllerBase
     private readonly ILogger<TasksController> _logger;
     private readonly IMediator _mediator;
 
-    public TasksController(
-        ILogger<TasksController> logger,
-        IMediator mediator)
+    public TasksController(ILogger<TasksController> logger, IMediator mediator)
     {
         _logger = logger;
         _mediator = mediator;
@@ -38,23 +36,20 @@ public class TasksController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<TaskDto>> CreateTask(
-        [FromBody] CreateTaskCommand command)
+    public async Task<ActionResult<TaskDto>> CreateTask([FromBody] CreateTaskCommand command)
     {
         TaskDto? createdTask = await _mediator.Send(command);
 
-        return CreatedAtAction(
-            nameof(GetTaskById),
-            new { taskId = createdTask.Id },
-            createdTask);
+        return CreatedAtAction(nameof(GetTaskById), new { taskId = createdTask.Id }, createdTask);
     }
 
     [HttpPut("{taskId}")]
     public async Task<ActionResult<TaskDto>> UpdateTask(
-      Guid taskId,
-      [FromBody] UpdateTaskCommand command)
+        Guid taskId,
+        [FromBody] UpdateTaskCommand command
+    )
     {
-        if (taskId != command.TaskId)
+        if (taskId != command.Id)
             return BadRequest("Task ID mismatch");
 
         TaskDto? updatedTask = await _mediator.Send(command);
@@ -63,5 +58,16 @@ public class TasksController : ControllerBase
             return NotFound();
 
         return Ok(updatedTask);
+    }
+
+    [HttpDelete("{taskId}")]
+    public async Task<ActionResult> DeleteTask(Guid taskId)
+    {
+        Boolean result = await _mediator.Send(new DeleteTaskCommand(taskId));
+
+        if (!result)
+            return NotFound();
+
+        return NoContent();
     }
 }

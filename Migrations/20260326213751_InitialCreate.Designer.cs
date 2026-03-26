@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace TaskManagementApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260326132050_InitialCreate")]
+    [Migration("20260326213751_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -180,6 +180,9 @@ namespace TaskManagementApi.Migrations
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
 
+                    b.Property<int>("UserRole")
+                        .HasColumnType("integer");
+
                     b.HasKey("UserId", "TenantId");
 
                     b.ToTable("UserTenant");
@@ -194,7 +197,7 @@ namespace TaskManagementApi.Migrations
                         .IsRequired();
 
                     b.HasOne("User", "User")
-                        .WithMany()
+                        .WithMany("Comments")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -257,6 +260,8 @@ namespace TaskManagementApi.Migrations
 
             modelBuilder.Entity("User", b =>
                 {
+                    b.Navigation("Comments");
+
                     b.Navigation("UserTasks");
 
                     b.Navigation("UserTenants");

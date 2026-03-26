@@ -51,7 +51,12 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserD
 
         _dbContext.Users.Add(user);
 
-        UserTenant userTenant = new UserTenant { UserId = user.Id, TenantId = tenantId };
+        UserTenant userTenant = new UserTenant
+        {
+            UserId = user.Id,
+            TenantId = tenantId,
+            UserRole = request.UserRole,
+        };
 
         _dbContext.UserTenant.Add(userTenant);
 

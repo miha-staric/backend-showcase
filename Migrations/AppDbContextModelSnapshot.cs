@@ -177,6 +177,9 @@ namespace TaskManagementApi.Migrations
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
 
+                    b.Property<int>("UserRole")
+                        .HasColumnType("integer");
+
                     b.HasKey("UserId", "TenantId");
 
                     b.ToTable("UserTenant");
@@ -191,7 +194,7 @@ namespace TaskManagementApi.Migrations
                         .IsRequired();
 
                     b.HasOne("User", "User")
-                        .WithMany()
+                        .WithMany("Comments")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -254,6 +257,8 @@ namespace TaskManagementApi.Migrations
 
             modelBuilder.Entity("User", b =>
                 {
+                    b.Navigation("Comments");
+
                     b.Navigation("UserTasks");
 
                     b.Navigation("UserTenants");

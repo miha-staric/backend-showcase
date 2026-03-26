@@ -2,36 +2,38 @@ using Contracts;
 using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using ZiggyCreatures.Caching.Fusion;
+using Services.Caching;
 
-public class CreateTaskCommandHandler
-    : IRequestHandler<CreateTaskCommand, TaskDto>
+public class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand, TaskDto>
 {
     private readonly AppDbContext _dbContext;
     private readonly IPublishEndpoint _publishEndpoint;
     private readonly ITenantContext _tenantContext;
-    private readonly IFusionCache _cache;
+    private readonly TaskCacheHelper _taskCacheHelper;
 
     public CreateTaskCommandHandler(
         AppDbContext dbContext,
         IPublishEndpoint publishEndpoint,
         ITenantContext tenantContext,
-        IFusionCache cache)
+        TaskCacheHelper taskCacheHelper
+    )
     {
         _dbContext = dbContext;
         _publishEndpoint = publishEndpoint;
         _tenantContext = tenantContext;
-        _cache = cache;
+        _taskCacheHelper = taskCacheHelper;
     }
 
     public async Task<TaskDto> Handle(
         CreateTaskCommand request,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
-        Guid tenantId = _tenantContext.TenantId
-          ?? throw new InvalidOperationException("TenantId missing");
+        Guid tenantId =
+            _tenantContext.TenantId
+            ?? throw new InvalidOperationException("TenantId is required to create tasks.");
 
-        String cacheKey = $"tenant:{tenantId}:tasks";
+        String cacheKey = _taskCacheHelper.GetTasksKey(tenantId);
 
         TaskItem task = new TaskItem
         {
@@ -40,7 +42,7 @@ public class CreateTaskCommandHandler
             Title = request.Title,
             PrimaryAssigneeId = request.PrimaryAssigneeId,
             DueDate = request.DueDate,
-            Status = TaskStatus.New
+            Status = TaskStatus.New,
         };
 
         _dbContext.Tasks.Add(task);
@@ -49,13 +51,18 @@ public class CreateTaskCommandHandler
         {
             Guid userId = request.PrimaryAssigneeId.Value;
 
-            Boolean userExists = await _dbContext.Users.AnyAsync(u => u.Id == userId, cancellationToken);
+            Boolean userExists = await _dbContext.Users.AnyAsync(
+                u => u.Id == userId,
+                cancellationToken
+            );
 
             if (!userExists)
                 throw new InvalidOperationException("Primary assignee user does not exist.");
 
-            Boolean userTenantExists = await _dbContext.UserTenant
-                .AnyAsync(ut => ut.UserId == userId && ut.TenantId == tenantId, cancellationToken);
+            Boolean userTenantExists = await _dbContext.UserTenant.AnyAsync(
+                ut => ut.UserId == userId && ut.TenantId == tenantId,
+                cancellationToken
+            );
 
             if (!userTenantExists)
                 throw new InvalidOperationException("User is not part of this tenant.");
@@ -66,13 +73,13 @@ public class CreateTaskCommandHandler
                 TaskItemId = task.Id,
                 TenantId = tenantId,
                 Role = Roles.Assignee,
-                CreatedAt = DateTimeOffset.UtcNow
+                CreatedAt = DateTimeOffset.UtcNow,
             };
 
             _dbContext.UserTask.Add(userTask);
         }
 
-        await _cache.RemoveAsync(cacheKey);
+        await _taskCacheHelper.InvalidateTaskCacheAsync(tenantId, task.Id);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
@@ -85,7 +92,7 @@ public class CreateTaskCommandHandler
             TenantId = task.TenantId,
             AssignedUserId = task.PrimaryAssigneeId,
             DueDate = task.DueDate,
-            Status = task.Status
+            Status = task.Status,
         };
     }
 }

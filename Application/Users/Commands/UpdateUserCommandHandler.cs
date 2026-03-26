@@ -15,7 +15,8 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, UserD
         AppDbContext db,
         IPublishEndpoint publishEndpoint,
         ITenantContext tenantContext,
-        UserCacheHelper userCacheHelper)
+        UserCacheHelper userCacheHelper
+    )
     {
         _dbContext = db;
         _publishEndpoint = publishEndpoint;
@@ -23,21 +24,22 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, UserD
         _userCacheHelper = userCacheHelper;
     }
 
-    public async Task<UserDto?> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
+    public async Task<UserDto?> Handle(
+        UpdateUserCommand request,
+        CancellationToken cancellationToken
+    )
     {
-        Guid tenantId = _tenantContext.TenantId
-          ?? throw new InvalidOperationException("TenantId missing");
+        Guid tenantId =
+            _tenantContext.TenantId
+            ?? throw new InvalidOperationException("TenantId is required to update users.");
 
-        User? user = await _dbContext.Users
-            .Include(u => u.UserTenants)
-            .FirstOrDefaultAsync(u => u.Id == request.UserId, cancellationToken);
+        User? user = await _dbContext.Users.FirstOrDefaultAsync(
+            u => u.Id == request.Id,
+            cancellationToken
+        );
 
         if (user == null)
             throw new InvalidOperationException("User not found.");
-
-        Boolean belongsToTenant = user.UserTenants.Any(ut => ut.TenantId == tenantId);
-        if (!belongsToTenant)
-            throw new InvalidOperationException("User does not belong to this tenant.");
 
         user.Username = request.Username ?? user.Username;
         user.Email = request.Email ?? user.Email;
@@ -52,7 +54,7 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, UserD
         {
             Id = user.Id,
             Username = user.Username,
-            Email = user.Email
+            Email = user.Email,
         };
     }
 }

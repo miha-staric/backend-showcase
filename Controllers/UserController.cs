@@ -42,14 +42,8 @@ public class UsersController : ControllerBase
     }
 
     [HttpPut("{userId}")]
-    public async Task<ActionResult<UserDto>> UpdateUser(
-        Guid taskId,
-        [FromBody] UpdateUserCommand command
-    )
+    public async Task<ActionResult<UserDto>> UpdateUser([FromBody] UpdateUserCommand command)
     {
-        if (taskId != command.UserId)
-            return BadRequest("User ID mismatch");
-
         UserDto? updatedUser = await _mediator.Send(command);
 
         if (updatedUser == null)

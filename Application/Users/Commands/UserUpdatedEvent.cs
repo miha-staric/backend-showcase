@@ -4,10 +4,10 @@ namespace Contracts;
 
 public class UserUpdatedEvent : INotification
 {
-    public Guid UserId { get; }
+    public Guid Id { get; }
 
-    public UserUpdatedEvent(Guid userId)
+    public UserUpdatedEvent(Guid id)
     {
-        UserId = userId;
+        Id = id;
     }
 }

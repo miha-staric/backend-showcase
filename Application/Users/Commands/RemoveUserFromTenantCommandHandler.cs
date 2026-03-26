@@ -32,7 +32,7 @@ public class RemoveUserFromTenantCommandHandler
     {
         Guid tenantId =
             _tenantContext.TenantId
-            ?? throw new InvalidOperationException("TenantId is required to delete a user.");
+            ?? throw new InvalidOperationException("TenantId is required to delete users.");
 
         UserTenant? userTenant = await _dbContext.UserTenant.FirstOrDefaultAsync(
             ut => ut.UserId == request.UserId && ut.TenantId == tenantId,

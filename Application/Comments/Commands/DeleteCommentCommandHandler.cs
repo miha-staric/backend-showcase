@@ -35,7 +35,7 @@ public class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand,
     {
         Guid tenantId =
             _tenantContext.TenantId
-            ?? throw new InvalidOperationException("TenantId is required to delete a comment.");
+            ?? throw new InvalidOperationException("TenantId is required to delete comments.");
 
         Comment? comment = await _dbContext.Comments.FirstOrDefaultAsync(
             c => c.Id == request.CommentId && c.TenantId == tenantId,

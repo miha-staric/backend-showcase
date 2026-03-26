@@ -5,8 +5,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Services.Caching;
 
-public class CreateUserCommandHandler
-    : IRequestHandler<CreateUserCommand, UserDto>
+public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserDto>
 {
     private readonly AppDbContext _dbContext;
     private readonly IPublishEndpoint _publishEndpoint;
@@ -19,7 +18,8 @@ public class CreateUserCommandHandler
         IPublishEndpoint publishEndpoint,
         ITenantContext tenantContext,
         UserCacheHelper userCacheHelper,
-        IValidator<CreateUserCommand> userValidator)
+        IValidator<CreateUserCommand> userValidator
+    )
     {
         _dbContext = dbContext;
         _publishEndpoint = publishEndpoint;
@@ -30,30 +30,28 @@ public class CreateUserCommandHandler
 
     public async Task<UserDto> Handle(
         CreateUserCommand request,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken
+    )
     {
         var validationResult = await _userValidator.ValidateAsync(request, cancellationToken);
 
         if (!validationResult.IsValid)
             throw new ValidationException(validationResult.Errors);
 
-        Guid tenantId = _tenantContext.TenantId
-            ?? throw new InvalidOperationException("TenantId is required to create a user.");
+        Guid tenantId =
+            _tenantContext.TenantId
+            ?? throw new InvalidOperationException("TenantId is required to create users.");
 
         User? user = new User
         {
             Id = Guid.NewGuid(),
             Username = request.Username,
-            Email = request.Email
+            Email = request.Email,
         };
 
         _dbContext.Users.Add(user);
 
-        UserTenant userTenant = new UserTenant
-        {
-            UserId = user.Id,
-            TenantId = tenantId
-        };
+        UserTenant userTenant = new UserTenant { UserId = user.Id, TenantId = tenantId };
 
         _dbContext.UserTenant.Add(userTenant);
 
@@ -67,7 +65,7 @@ public class CreateUserCommandHandler
         {
             Id = user.Id,
             Username = user.Username,
-            Email = user.Email
+            Email = user.Email,
         };
     }
 }

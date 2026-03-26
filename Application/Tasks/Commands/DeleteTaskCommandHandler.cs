@@ -35,7 +35,7 @@ public class DeleteTaskCommandHandler : IRequestHandler<DeleteTaskCommand, Boole
     {
         Guid tenantId =
             _tenantContext.TenantId
-            ?? throw new InvalidOperationException("TenantId is required to delete a task.");
+            ?? throw new InvalidOperationException("TenantId is required to delete tasks.");
 
         TaskItem? taskItem = await _dbContext.Tasks.FirstOrDefaultAsync(
             t => t.Id == request.TaskId && t.TenantId == tenantId,

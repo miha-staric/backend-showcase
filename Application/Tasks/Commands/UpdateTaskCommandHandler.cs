@@ -3,7 +3,6 @@ using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Services.Caching;
-using ZiggyCreatures.Caching.Fusion;
 
 public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, TaskDto?>
 {
@@ -32,7 +31,7 @@ public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, TaskD
     {
         Guid tenantId =
             _tenantContext.TenantId
-            ?? throw new InvalidOperationException("TenantId is required to create tasks.");
+            ?? throw new InvalidOperationException("TenantId is required to update tasks.");
 
         String cacheKey = _taskCacheHelper.GetTasksKey(tenantId);
 

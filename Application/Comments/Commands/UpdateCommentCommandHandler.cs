@@ -3,7 +3,6 @@ using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Services.Caching;
-using ZiggyCreatures.Caching.Fusion;
 
 public class UpdateCommentCommandHandler : IRequestHandler<UpdateCommentCommand, CommentDto?>
 {

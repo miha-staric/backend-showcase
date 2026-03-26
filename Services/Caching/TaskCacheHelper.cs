@@ -25,7 +25,7 @@ namespace Services.Caching
         /// <summary>
         /// Invalidate both tenant-wide and single-task caches
         /// </summary>
-        public async Task InvalidateUserCacheAsync(Guid tenantId, Guid taskId)
+        public async Task InvalidateTaskCacheAsync(Guid tenantId, Guid taskId)
         {
             string multiKey = GetTasksKey(tenantId);
             string singleKey = GetSingleTaskKey(tenantId, taskId);

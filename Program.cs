@@ -129,6 +129,10 @@ builder.Services.AddHttpClient<GetAccessTokenCommandHandler>(client =>
 {
     client.BaseAddress = new Uri("http://keycloak:8080");
 });
+builder.Services.Configure<RouteOptions>(options =>
+{
+    options.LowercaseUrls = true;
+});
 
 // Build Application
 WebApplication app = builder.Build();

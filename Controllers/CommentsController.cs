@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class CommentController : ControllerBase
+public class CommentsController : ControllerBase
 {
     private readonly IMediator _mediator;
 
-    public CommentController(IMediator mediator)
+    public CommentsController(IMediator mediator)
     {
         _mediator = mediator;
     }
@@ -22,17 +22,18 @@ public class CommentController : ControllerBase
         return Ok(comments);
     }
 
-    /*
-    [HttpGet("{userId}")]
-    public async Task<ActionResult<UserDto>> GetUserById(Guid userId)
+    [HttpGet("{commentId}")]
+    public async Task<ActionResult<CommentDto>> GetCommentById(Guid commentId)
     {
-        UserDto? user = await _mediator.Send(new GetUserByIdQuery(userId));
+        CommentDto? comment = await _mediator.Send(new GetCommentByIdQuery(commentId));
 
-        if (user == null)
+        if (comment == null)
             return NotFound();
 
-        return Ok(user);
+        return Ok(comment);
     }
+
+    /*
 
     [HttpPost]
     public async Task<ActionResult<UserDto>> CreateUser([FromBody] CreateUserCommand command)

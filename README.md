@@ -56,11 +56,12 @@ Service Layer (Business logic)
     ↓
 Data Layer (EF Core + Dapper)
     ↓
+FusionCache
+    ↓
 Database (PostgreSQL)
 
 Side Channels:
 - MassTransit → RabbitMQ/Azure Service Bus
-- FusionCache → Distributed cache
 - Keycloak → External auth
 - Polly → Resilience wrapper
 ```

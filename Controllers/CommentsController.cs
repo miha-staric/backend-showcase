@@ -47,27 +47,27 @@ public class CommentsController : ControllerBase
         );
     }
 
-    /*
-    [HttpPut("{userId}")]
-    public async Task<ActionResult<UserDto>> UpdateUser([FromBody] UpdateUserCommand command)
+    [HttpPut("{commentId}")]
+    public async Task<ActionResult<CommentDto>> UpdateComment(
+        [FromBody] UpdateCommentCommand command
+    )
     {
-        UserDto? updatedUser = await _mediator.Send(command);
+        CommentDto? updatedComment = await _mediator.Send(command);
 
-        if (updatedUser == null)
+        if (updatedComment == null)
             return NotFound();
 
-        return Ok(updatedUser);
+        return Ok(updatedComment);
     }
 
-    [HttpDelete("{userId}")]
-    public async Task<ActionResult> DeleteUser(Guid userId)
+    [HttpDelete("{commentId}")]
+    public async Task<ActionResult> DeleteComment(Guid commentId)
     {
-        Boolean result = await _mediator.Send(new RemoveUserFromTenantCommand(userId));
+        Boolean result = await _mediator.Send(new DeleteCommentCommand(commentId));
 
         if (!result)
             return NotFound();
 
         return NoContent();
     }
-    */
 }

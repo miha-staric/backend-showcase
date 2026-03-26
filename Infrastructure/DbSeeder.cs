@@ -119,6 +119,15 @@ public static class DbSeeder
                 Content = "Oh, ho, ho ho!",
                 CreatedAt = DateTimeOffset.UtcNow,
             },
+            new()
+            {
+                TenantId = tenantB.Id,
+                UserId = carol.Id,
+                TaskId = task1.Id,
+                Subject = "The Others... They can't lie!",
+                Content = "I noticed it just the other day, they cannot lie. Like, at all!",
+                CreatedAt = DateTimeOffset.UtcNow,
+            },
         };
         db.Comments.AddRange(comments);
         await db.SaveChangesAsync();

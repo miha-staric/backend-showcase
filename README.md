@@ -70,7 +70,7 @@ Side Channels:
 - **Tenant** (organization)
 - **User** (linked to KeyCloak ID)
 - **Task** (title, description, status, assigned user, due date)
-- **TaskComment** (comments, linked to tasks and users)
+- **Comment** (linked to tasks and users)
 
 ## 🔐 KeyCloak Integration and Multi-tenancy
 

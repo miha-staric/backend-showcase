@@ -15,7 +15,8 @@ public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, TaskD
         AppDbContext db,
         IPublishEndpoint publishEndpoint,
         ITenantContext tenantContext,
-        IFusionCache cache)
+        IFusionCache cache
+    )
     {
         _dbContext = db;
         _publishEndpoint = publishEndpoint;
@@ -23,14 +24,17 @@ public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, TaskD
         _cache = cache;
     }
 
-    public async Task<TaskDto?> Handle(UpdateTaskCommand request, CancellationToken cancellationToken)
+    public async Task<TaskDto?> Handle(
+        UpdateTaskCommand request,
+        CancellationToken cancellationToken
+    )
     {
         Guid? tenantId = _tenantContext.TenantId;
-        string cacheKey = $"tenant:{request.TenantId}:task:{request.TaskId}";
+        string cacheKey = $"tenant:{request.TenantId}:task:{request.Id}";
 
-        TaskItem? task = await _dbContext.Tasks.FirstOrDefaultAsync(
-            t => t.Id == request.TaskId
-            && t.TenantId == request.TenantId);
+        TaskItem? task = await _dbContext.Tasks.FirstOrDefaultAsync(t =>
+            t.Id == request.Id && t.TenantId == request.TenantId
+        );
 
         if (task == null)
             return null;
@@ -50,10 +54,11 @@ public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, TaskD
         return new TaskDto
         {
             Id = task.Id,
+            TenantId = task.TenantId,
             Title = task.Title,
             AssignedUserId = task.PrimaryAssigneeId,
             DueDate = task.DueDate,
-            Status = task.Status
+            Status = task.Status,
         };
     }
 }

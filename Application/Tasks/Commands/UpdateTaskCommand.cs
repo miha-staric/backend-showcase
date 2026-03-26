@@ -1,7 +1,7 @@
 using MediatR;
 
 public record UpdateTaskCommand(
-    Guid TaskId,
+    Guid Id,
     Guid TenantId,
     TaskStatus Status,
     string? Title = null,

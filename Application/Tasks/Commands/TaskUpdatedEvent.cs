@@ -4,10 +4,10 @@ namespace Contracts;
 
 public class TaskUpdatedEvent : INotification
 {
-    public Guid TaskId { get; }
+    public Guid Id { get; }
 
     public TaskUpdatedEvent(Guid taskId)
     {
-        TaskId = taskId;
+        Id = taskId;
     }
 }

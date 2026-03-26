@@ -33,16 +33,21 @@ public class CommentsController : ControllerBase
         return Ok(comment);
     }
 
-    /*
-
     [HttpPost]
-    public async Task<ActionResult<UserDto>> CreateUser([FromBody] CreateUserCommand command)
+    public async Task<ActionResult<CommentDto>> CreateComment(
+        [FromBody] CreateCommentCommand command
+    )
     {
-        UserDto? createdUser = await _mediator.Send(command);
+        CommentDto? createdComment = await _mediator.Send(command);
 
-        return CreatedAtAction(nameof(GetUserById), new { userId = createdUser.Id }, createdUser);
+        return CreatedAtAction(
+            nameof(GetCommentById),
+            new { commentId = createdComment.Id },
+            createdComment
+        );
     }
 
+    /*
     [HttpPut("{userId}")]
     public async Task<ActionResult<UserDto>> UpdateUser([FromBody] UpdateUserCommand command)
     {

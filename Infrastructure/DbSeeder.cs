@@ -8,14 +8,39 @@ public static class DbSeeder
             return;
 
         // Tenants
-        var tenantA = new Tenant { Id = Guid.Parse("4da30340-fda0-49b0-b564-f511c630d221"), Title = "Tenant-A", Enabled = true };
-        var tenantB = new Tenant { Id = Guid.Parse("2337e27f-58eb-4973-9b43-4b795dac1ad7"), Title = "Tenant-B", Enabled = true };
+        var tenantA = new Tenant
+        {
+            Id = Guid.Parse("4da30340-fda0-49b0-b564-f511c630d221"),
+            Title = "Tenant-A",
+            Enabled = true,
+        };
+        var tenantB = new Tenant
+        {
+            Id = Guid.Parse("2337e27f-58eb-4973-9b43-4b795dac1ad7"),
+            Title = "Tenant-B",
+            Enabled = true,
+        };
         db.Tenants.AddRange(tenantA, tenantB);
 
         // Users
-        var alice = new User { Id = Guid.Parse("bef81bfc-2cbb-4321-bd4a-cecb244dadcb"), Username = "alice", Email = "alice@tenant-a.example.com" };
-        var bob = new User { Id = Guid.Parse("657ca4fa-fb2d-4180-80db-1403c6b8579e"), Username = "bob", Email = "bob@tenant-a.example.com" };
-        var carol = new User { Id = Guid.Parse("1b33930d-4437-41ee-9b10-a864b40cec78"), Username = "carol", Email = "carol@tenant-b.example.com" };
+        var alice = new User
+        {
+            Id = Guid.Parse("bef81bfc-2cbb-4321-bd4a-cecb244dadcb"),
+            Username = "alice",
+            Email = "alice@tenant-a.example.com",
+        };
+        var bob = new User
+        {
+            Id = Guid.Parse("657ca4fa-fb2d-4180-80db-1403c6b8579e"),
+            Username = "bob",
+            Email = "bob@tenant-a.example.com",
+        };
+        var carol = new User
+        {
+            Id = Guid.Parse("1b33930d-4437-41ee-9b10-a864b40cec78"),
+            Username = "carol",
+            Email = "carol@tenant-b.example.com",
+        };
         db.Users.AddRange(alice, bob, carol);
 
         await db.SaveChangesAsync();
@@ -25,7 +50,7 @@ public static class DbSeeder
         {
             new() { UserId = alice.Id, TenantId = tenantA.Id },
             new() { UserId = bob.Id, TenantId = tenantA.Id },
-            new() { UserId = carol.Id, TenantId = tenantB.Id }
+            new() { UserId = carol.Id, TenantId = tenantB.Id },
         };
         db.UserTenant.AddRange(userTenants);
         await db.SaveChangesAsync();
@@ -37,7 +62,7 @@ public static class DbSeeder
             TenantId = tenantB.Id,
             Title = "Learn ASP.NET Core",
             Status = TaskStatus.New,
-            PrimaryAssigneeId = carol.Id
+            PrimaryAssigneeId = carol.Id,
         };
         var task2 = new TaskItem
         {
@@ -45,7 +70,7 @@ public static class DbSeeder
             TenantId = tenantA.Id,
             Title = "Build Web API",
             Status = TaskStatus.New,
-            PrimaryAssigneeId = alice.Id
+            PrimaryAssigneeId = alice.Id,
         };
         db.Tasks.AddRange(task1, task2);
         await db.SaveChangesAsync();
@@ -53,10 +78,49 @@ public static class DbSeeder
         // UserTasks
         var userTasks = new List<UserTask>
         {
-            new() { UserId = alice.Id, TaskItemId = task2.Id, TenantId = tenantA.Id, Role = Roles.Assignee, CreatedAt = DateTimeOffset.UtcNow },
-            new() { UserId = carol.Id, TaskItemId = task1.Id, TenantId = tenantB.Id, Role = Roles.Assignee, CreatedAt = DateTimeOffset.UtcNow }
+            new()
+            {
+                UserId = alice.Id,
+                TaskItemId = task2.Id,
+                TenantId = tenantA.Id,
+                Role = Roles.Assignee,
+                CreatedAt = DateTimeOffset.UtcNow,
+            },
+            new()
+            {
+                UserId = carol.Id,
+                TaskItemId = task1.Id,
+                TenantId = tenantB.Id,
+                Role = Roles.Assignee,
+                CreatedAt = DateTimeOffset.UtcNow,
+            },
         };
         db.UserTask.AddRange(userTasks);
+        await db.SaveChangesAsync();
+
+        // Comments
+        var comments = new List<Comment>
+        {
+            new()
+            {
+                TenantId = tenantA.Id,
+                UserId = alice.Id,
+                TaskId = task2.Id,
+                Subject = "This is my comment",
+                Content = "Blah blah. Blah blah blah blah.",
+                CreatedAt = DateTimeOffset.UtcNow,
+            },
+            new()
+            {
+                TenantId = tenantA.Id,
+                UserId = alice.Id,
+                TaskId = task2.Id,
+                Subject = "This is my next comment",
+                Content = "Oh, ho, ho ho!",
+                CreatedAt = DateTimeOffset.UtcNow,
+            },
+        };
+        db.Comments.AddRange(comments);
         await db.SaveChangesAsync();
     }
 }

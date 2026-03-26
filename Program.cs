@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using Serilog;
 using Services.Caching;
+using ZiggyCreatures.Caching.Fusion;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -91,6 +92,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 );
 builder.Services.AddScoped<ITenantContext, TenantContext>();
 builder.Services.AddFusionCache();
+FusionCacheEntryOptions defaultCacheOptions = new FusionCacheEntryOptions
+{
+    Duration = TimeSpan.FromMinutes(5),
+    IsFailSafeEnabled = true,
+};
+builder.Services.AddSingleton(defaultCacheOptions);
 builder.Services.AddMediatR(typeof(Program));
 builder.Services.AddMassTransit(x =>
 {
@@ -135,8 +142,10 @@ if (app.Environment.IsDevelopment())
     if (args.Contains("--seed"))
     {
         using IServiceScope scope = app.Services.CreateScope();
+        IServiceProvider? provider = scope.ServiceProvider;
 
-        AppDbContext db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        AppDbContext db = provider.GetRequiredService<AppDbContext>();
+        IFusionCache? cache = provider.GetRequiredService<IFusionCache>();
 
         Boolean reset = args.Contains("--reset");
 
@@ -151,6 +160,11 @@ if (app.Environment.IsDevelopment())
         Console.WriteLine("Seeding test data...");
         await DbSeeder.SeedTestData(db);
         Console.WriteLine("Seeding complete!");
+
+        Console.WriteLine("Clearing cache...");
+        if (cache is FusionCache fc)
+            fc.Clear();
+        Console.WriteLine("Clearing complete!");
         return;
     }
 }

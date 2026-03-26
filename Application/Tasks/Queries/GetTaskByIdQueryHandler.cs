@@ -62,11 +62,6 @@ public class GetTaskByIdQueryHandler : IRequestHandler<GetTaskByIdQuery, TaskDto
                     .FirstOrDefaultAsync(cancellationToken);
 
                 return task;
-            },
-            new FusionCacheEntryOptions
-            {
-                Duration = TimeSpan.FromMinutes(5),
-                IsFailSafeEnabled = true,
             }
         );
     }

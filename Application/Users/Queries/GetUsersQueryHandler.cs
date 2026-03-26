@@ -47,11 +47,6 @@ public class GetUsersQueryHandler : IRequestHandler<GetUsersQuery, IEnumerable<U
                     })
                     .ToListAsync();
                 return userDtos;
-            },
-            new FusionCacheEntryOptions
-            {
-                Duration = TimeSpan.FromMinutes(5),
-                IsFailSafeEnabled = true,
             }
         );
     }

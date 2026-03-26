@@ -60,11 +60,6 @@ public class GetTasksQueryHandler : IRequestHandler<GetTasksQuery, IEnumerable<T
                     })
                     .ToListAsync();
                 return taskDtos;
-            },
-            new FusionCacheEntryOptions
-            {
-                Duration = TimeSpan.FromMinutes(5),
-                IsFailSafeEnabled = true,
             }
         );
     }

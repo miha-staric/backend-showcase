@@ -49,11 +49,6 @@ public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserDto
                     .FirstOrDefaultAsync(cancellationToken);
 
                 return user;
-            },
-            new FusionCacheEntryOptions
-            {
-                Duration = TimeSpan.FromMinutes(5),
-                IsFailSafeEnabled = true,
             }
         );
     }

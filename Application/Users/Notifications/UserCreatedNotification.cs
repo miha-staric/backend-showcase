@@ -2,12 +2,12 @@ using MediatR;
 
 namespace Contracts;
 
-public class UserCreatedEvent : INotification
+public class UserCreatedNotification : INotification
 {
     public Guid UserId { get; }
     public String Email { get; }
 
-    public UserCreatedEvent(Guid userId, String email)
+    public UserCreatedNotification(Guid userId, String email)
     {
         UserId = userId;
         Email = email;

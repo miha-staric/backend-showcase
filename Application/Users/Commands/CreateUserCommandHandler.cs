@@ -8,6 +8,7 @@ using Services.Caching;
 public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserDto>
 {
     private readonly AppDbContext _dbContext;
+    private readonly IMediator _mediator;
     private readonly IPublishEndpoint _publishEndpoint;
     private readonly ITenantContext _tenantContext;
     private readonly UserCacheHelper _userCacheHelper;
@@ -15,6 +16,7 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserD
 
     public CreateUserCommandHandler(
         AppDbContext dbContext,
+        IMediator mediator,
         IPublishEndpoint publishEndpoint,
         ITenantContext tenantContext,
         UserCacheHelper userCacheHelper,
@@ -22,6 +24,7 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserD
     )
     {
         _dbContext = dbContext;
+        _mediator = mediator;
         _publishEndpoint = publishEndpoint;
         _tenantContext = tenantContext;
         _userCacheHelper = userCacheHelper;
@@ -77,7 +80,8 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserD
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        await _publishEndpoint.Publish(new UserCreatedEvent(user.Id));
+        await _publishEndpoint.Publish(new UserCreatedEvent(user.Id, user.Email));
+        await _mediator.Publish(new UserCreatedNotification(user.Id, user.Email));
 
         return new UserDto
         {

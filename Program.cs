@@ -133,6 +133,7 @@ builder.Services.Configure<RouteOptions>(options =>
 {
     options.LowercaseUrls = true;
 });
+builder.Services.AddSingleton<IEmailService>(new FakeEmailService());
 
 // Build Application
 WebApplication app = builder.Build();

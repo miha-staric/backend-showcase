@@ -53,18 +53,21 @@ public static class DbSeeder
                 UserId = alice.Id,
                 TenantId = tenantA.Id,
                 Username = alice.Username,
+                UserRole = UserRole.User,
             },
             new()
             {
                 UserId = bob.Id,
                 TenantId = tenantA.Id,
                 Username = bob.Username,
+                UserRole = UserRole.User,
             },
             new()
             {
                 UserId = carol.Id,
                 TenantId = tenantB.Id,
                 Username = carol.Username,
+                UserRole = UserRole.Admin,
             },
         };
         db.UserTenant.AddRange(userTenants);

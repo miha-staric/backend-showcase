@@ -42,6 +42,11 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserD
             _tenantContext.TenantId
             ?? throw new InvalidOperationException("TenantId is required to create users.");
 
+        if (_tenantContext.UserRole != UserRole.Admin)
+            throw new InvalidOperationException(
+                "User must have the role of Admin to create users."
+            );
+
         User? user = new User
         {
             Id = Guid.NewGuid(),

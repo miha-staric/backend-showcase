@@ -34,6 +34,11 @@ public class RemoveUserFromTenantCommandHandler
             _tenantContext.TenantId
             ?? throw new InvalidOperationException("TenantId is required to delete users.");
 
+        if (_tenantContext.UserRole != UserRole.Admin)
+            throw new InvalidOperationException(
+                "User must have the role of Admin to delete users."
+            );
+
         UserTenant? userTenant = await _dbContext.UserTenant.FirstOrDefaultAsync(
             ut => ut.UserId == request.UserId && ut.TenantId == tenantId,
             cancellationToken

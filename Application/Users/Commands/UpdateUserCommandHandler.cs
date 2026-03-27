@@ -33,6 +33,11 @@ public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, UserD
             _tenantContext.TenantId
             ?? throw new InvalidOperationException("TenantId is required to update users.");
 
+        if (_tenantContext.UserRole != UserRole.Admin)
+            throw new InvalidOperationException(
+                "User must have the role of Admin to update users."
+            );
+
         User? user = await _dbContext.Users.FirstOrDefaultAsync(
             u => u.Id == request.Id,
             cancellationToken

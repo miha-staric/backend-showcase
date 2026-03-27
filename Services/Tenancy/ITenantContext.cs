@@ -1,5 +1,9 @@
 public interface ITenantContext
 {
     Guid? TenantId { get; }
-    void SetTenant(Guid tenantId);
+    Guid? UserId { get; }
+    UserRole? UserRole { get; }
+    void SetTenantId(Guid tenantId);
+    void SetUserId(Guid userId);
+    void SetUserRole(UserRole userRole);
 }

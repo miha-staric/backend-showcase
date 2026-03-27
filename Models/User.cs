@@ -7,4 +7,5 @@ public class User
 
     public List<UserTask> UserTasks { get; set; } = new();
     public List<UserTenant> UserTenants { get; set; } = new();
+    public List<Comment> Comments { get; set; } = new();
 }

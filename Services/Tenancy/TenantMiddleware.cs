@@ -18,6 +18,7 @@ public class TenantMiddleware
     )
     {
         Endpoint? endpoint = context.GetEndpoint();
+
         // Skip auth check if AllowAnonymous is applied
         if (endpoint?.Metadata?.GetMetadata<IAllowAnonymous>() != null)
         {
@@ -39,26 +40,32 @@ public class TenantMiddleware
             return;
         }
 
-        String? userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        String? userIdString = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        if (userId == null)
+        if (userIdString == null)
         {
             context.Response.StatusCode = 401;
             return;
         }
 
-        bool userInTenant = await db.UserTenant.AnyAsync(x =>
-            x.TenantId == tenantId && x.UserId == Guid.Parse(userId)
+        Guid userId = Guid.Parse(userIdString);
+
+        UserTenant? userTenant = (
+            await db.UserTenant.FirstOrDefaultAsync(ut =>
+                ut.UserId == userId && ut.TenantId == tenantId
+            )
         );
 
-        if (!userInTenant)
+        if (userTenant == null)
         {
             context.Response.StatusCode = 403;
             await context.Response.WriteAsync("User not part of tenant");
             return;
         }
 
-        tenantContext.SetTenant(tenantId);
+        tenantContext.SetTenantId(tenantId);
+        tenantContext.SetUserId(userId);
+        tenantContext.SetUserRole(userTenant.UserRole);
 
         await _next(context);
     }

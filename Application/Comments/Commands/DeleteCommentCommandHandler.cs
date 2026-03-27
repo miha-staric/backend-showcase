@@ -37,6 +37,11 @@ public class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand,
             _tenantContext.TenantId
             ?? throw new InvalidOperationException("TenantId is required to delete comments.");
 
+        if (_tenantContext.UserRole != UserRole.Admin)
+            throw new InvalidOperationException(
+                "User must have the role of Admin to delete comments."
+            );
+
         Comment? comment = await _dbContext.Comments.FirstOrDefaultAsync(
             c => c.Id == request.CommentId && c.TenantId == tenantId,
             cancellationToken

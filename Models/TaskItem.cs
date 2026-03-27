@@ -12,6 +12,7 @@ public class TaskItem
     public DateTimeOffset? DueDate { get; set; }
 
     public List<UserTask> UserTasks { get; set; } = null!;
+    public List<Comment> Comments { get; set; } = null!;
 }
 
 public enum TaskStatus
@@ -19,5 +20,5 @@ public enum TaskStatus
     New,
     InProgress,
     Finished,
-    Closed
+    Closed,
 }

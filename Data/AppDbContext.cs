@@ -107,6 +107,11 @@ public class AppDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(t => t.PrimaryAssigneeId)
                 .OnDelete(DeleteBehavior.SetNull);
+            entity
+                .HasMany(t => t.Comments)
+                .WithOne(c => c.Task)
+                .HasForeignKey(c => c.TaskId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 

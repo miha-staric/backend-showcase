@@ -12,13 +12,15 @@ public class DeleteTaskCommandHandler : IRequestHandler<DeleteTaskCommand, Boole
     private readonly ITenantContext _tenantContext;
     private readonly IFusionCache _cache;
     private readonly TaskCacheHelper _taskCacheHelper;
+    private readonly CommentCacheHelper _commentCacheHelper;
 
     public DeleteTaskCommandHandler(
         AppDbContext dbContext,
         IPublishEndpoint publishEndpoint,
         ITenantContext tenantContext,
         IFusionCache cache,
-        TaskCacheHelper taskCacheHelper
+        TaskCacheHelper taskCacheHelper,
+        CommentCacheHelper commentCacheHelper
     )
     {
         _dbContext = dbContext;
@@ -26,6 +28,7 @@ public class DeleteTaskCommandHandler : IRequestHandler<DeleteTaskCommand, Boole
         _tenantContext = tenantContext;
         _cache = cache;
         _taskCacheHelper = taskCacheHelper;
+        _commentCacheHelper = commentCacheHelper;
     }
 
     public async Task<Boolean> Handle(

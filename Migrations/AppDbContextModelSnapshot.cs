@@ -180,7 +180,15 @@ namespace TaskManagementApi.Migrations
                     b.Property<int>("UserRole")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.HasKey("UserId", "TenantId");
+
+                    b.HasIndex("TenantId", "Username")
+                        .IsUnique();
 
                     b.ToTable("UserTenant");
                 });

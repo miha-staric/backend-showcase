@@ -54,6 +54,13 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserD
             Email = request.Email,
         };
 
+        UserTenant? existingUserTenant = await _dbContext.UserTenant.FirstOrDefaultAsync(ut =>
+            ut.TenantId == tenantId && ut.Username == user.Username
+        );
+
+        if (existingUserTenant != null)
+            throw new Exception("User with the same username already exists.");
+
         _dbContext.Users.Add(user);
 
         UserTenant userTenant = new UserTenant
@@ -61,6 +68,7 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserD
             UserId = user.Id,
             TenantId = tenantId,
             UserRole = request.UserRole,
+            Username = user.Username,
         };
 
         _dbContext.UserTenant.Add(userTenant);

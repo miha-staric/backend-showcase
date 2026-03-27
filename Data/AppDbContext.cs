@@ -86,11 +86,13 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<UserTenant>(entity =>
         {
             entity.HasKey(ut => new { ut.UserId, ut.TenantId });
+            entity.HasIndex(ut => new { ut.TenantId, ut.Username }).IsUnique();
             entity
                 .HasOne(ut => ut.User)
                 .WithMany(u => u.UserTenants)
                 .HasForeignKey(ut => ut.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+            entity.Property(ut => ut.Username).IsRequired().HasMaxLength(100);
         });
     }
 

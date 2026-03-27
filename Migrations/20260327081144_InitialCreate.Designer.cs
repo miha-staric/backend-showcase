@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace TaskManagementApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260326213751_InitialCreate")]
+    [Migration("20260327081144_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -183,7 +183,15 @@ namespace TaskManagementApi.Migrations
                     b.Property<int>("UserRole")
                         .HasColumnType("integer");
 
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.HasKey("UserId", "TenantId");
+
+                    b.HasIndex("TenantId", "Username")
+                        .IsUnique();
 
                     b.ToTable("UserTenant");
                 });

@@ -65,6 +65,7 @@ namespace TaskManagementApi.Migrations
                 {
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     TenantId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Username = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     UserRole = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
@@ -187,6 +188,12 @@ namespace TaskManagementApi.Migrations
                 name: "IX_UserTask_UserTenantUserId_UserTenantTenantId",
                 table: "UserTask",
                 columns: new[] { "UserTenantUserId", "UserTenantTenantId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserTenant_TenantId_Username",
+                table: "UserTenant",
+                columns: new[] { "TenantId", "Username" },
+                unique: true);
         }
 
         /// <inheritdoc />

@@ -48,9 +48,24 @@ public static class DbSeeder
         // UserTenants
         var userTenants = new List<UserTenant>
         {
-            new() { UserId = alice.Id, TenantId = tenantA.Id },
-            new() { UserId = bob.Id, TenantId = tenantA.Id },
-            new() { UserId = carol.Id, TenantId = tenantB.Id },
+            new()
+            {
+                UserId = alice.Id,
+                TenantId = tenantA.Id,
+                Username = alice.Username,
+            },
+            new()
+            {
+                UserId = bob.Id,
+                TenantId = tenantA.Id,
+                Username = bob.Username,
+            },
+            new()
+            {
+                UserId = carol.Id,
+                TenantId = tenantB.Id,
+                Username = carol.Username,
+            },
         };
         db.UserTenant.AddRange(userTenants);
         await db.SaveChangesAsync();

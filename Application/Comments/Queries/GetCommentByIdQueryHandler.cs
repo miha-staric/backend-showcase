@@ -34,9 +34,9 @@ public class GetCommentByIdQueryHandler : IRequestHandler<GetCommentByIdQuery, C
 
         string cacheKey = _commentCacheHelper.GetSingleCommentKey(tenantId, request.CommentId);
 
-        return await _cache.GetOrSetAsync(
+        return await _cache.GetOrSetAsync<CommentDto?>(
             cacheKey,
-            async _ =>
+            async (ctx, cancellationToken) =>
             {
                 CommentDto? comment = await _db
                     .Comments.Where(c => c.Id == request.CommentId)
@@ -52,6 +52,9 @@ public class GetCommentByIdQueryHandler : IRequestHandler<GetCommentByIdQuery, C
                         UpdatedAt = c.UpdatedAt,
                     })
                     .FirstOrDefaultAsync(cancellationToken);
+
+                if (comment != null)
+                    ctx.Tags = [$"task:{comment.TaskId}"];
 
                 return comment;
             }

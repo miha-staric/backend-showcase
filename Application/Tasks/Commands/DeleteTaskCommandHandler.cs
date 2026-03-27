@@ -56,6 +56,7 @@ public class DeleteTaskCommandHandler : IRequestHandler<DeleteTaskCommand, Boole
         _dbContext.Tasks.Remove(taskItem);
 
         await _taskCacheHelper.InvalidateTaskCacheAsync(tenantId, request.TaskId);
+        _cache.RemoveByTag($"task:{request.TaskId}");
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 

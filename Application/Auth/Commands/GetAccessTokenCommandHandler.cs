@@ -1,6 +1,6 @@
 using MediatR;
 
-public class GetAccessTokenCommandHandler : IRequestHandler<GetAccessTokenCommand, string>
+public class GetAccessTokenCommandHandler : IRequestHandler<GetAccessTokenCommand, String>
 {
     private readonly HttpClient _httpClient;
 
@@ -17,8 +17,8 @@ public class GetAccessTokenCommandHandler : IRequestHandler<GetAccessTokenComman
                 new Dictionary<string, string>
                 {
                     ["client_id"] = "saas-app",
-                    ["username"] = "carol",
-                    ["password"] = "carol123",
+                    ["username"] = request.username,
+                    ["password"] = request.password,
                     ["grant_type"] = "password",
                 }
             ),

@@ -1,3 +1,4 @@
 using MediatR;
 
-public record GetAccessTokenCommand() : IRequest<string>;
+public record GetAccessTokenCommand(String username = "carol", String password = "carol123")
+    : IRequest<String>;

@@ -23,6 +23,7 @@ public class FakeEmailService : IEmailService
                 SentAt = DateTime.UtcNow,
             }
         );
+        Console.WriteLine("Sending welcome email.");
         return Task.CompletedTask;
     }
 
@@ -58,7 +59,7 @@ public class FakeEmailService : IEmailService
 
     public bool WasEmailSent(string email) => SentEmails.Any(e => e.Email == email);
 
-    public SentEmail GetLastEmail() => SentEmails.LastOrDefault();
+    public SentEmail? GetLastEmail() => SentEmails.LastOrDefault();
 
     public void Clear() => SentEmails.Clear();
 }

@@ -99,15 +99,14 @@ FusionCacheEntryOptions defaultCacheOptions = new FusionCacheEntryOptions
 };
 builder.Services.AddSingleton(defaultCacheOptions);
 builder.Services.AddMediatR(typeof(Program));
-builder.Services.AddMassTransit(x =>
+builder.Services.AddMassTransit(busConfigurator =>
 {
-    // If you have consumers, register them here
-    // x.AddConsumer<TaskCreatedConsumer>();
+    busConfigurator.SetKebabCaseEndpointNameFormatter();
 
-    x.UsingRabbitMq(
-        (context, cfg) =>
+    busConfigurator.UsingRabbitMq(
+        (context, configurator) =>
         {
-            cfg.Host(
+            configurator.Host(
                 "localhost",
                 "/",
                 h =>
@@ -117,7 +116,7 @@ builder.Services.AddMassTransit(x =>
                 }
             );
 
-            cfg.ConfigureEndpoints(context);
+            configurator.ConfigureEndpoints(context);
         }
     );
 });

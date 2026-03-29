@@ -4,6 +4,7 @@ using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Services.Caching;
+using ZiggyCreatures.Caching.Fusion;
 
 public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserDto>
 {
@@ -12,6 +13,7 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserD
     private readonly IPublishEndpoint _publishEndpoint;
     private readonly ITenantContext _tenantContext;
     private readonly UserCacheHelper _userCacheHelper;
+    private readonly IFusionCache _cache;
     private readonly IValidator<CreateUserCommand> _userValidator;
 
     public CreateUserCommandHandler(
@@ -20,6 +22,7 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserD
         IPublishEndpoint publishEndpoint,
         ITenantContext tenantContext,
         UserCacheHelper userCacheHelper,
+        IFusionCache cache,
         IValidator<CreateUserCommand> userValidator
     )
     {
@@ -28,6 +31,7 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserD
         _publishEndpoint = publishEndpoint;
         _tenantContext = tenantContext;
         _userCacheHelper = userCacheHelper;
+        _cache = cache;
         _userValidator = userValidator;
     }
 
@@ -76,11 +80,29 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserD
 
         _dbContext.UserTenant.Add(userTenant);
 
-        await _userCacheHelper.InvalidateUserCacheAsync(tenantId, user.Id);
+        String cacheKey = _userCacheHelper.GetUsersKey(tenantId);
+        await _cache.RemoveAsync(cacheKey);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        await _publishEndpoint.Publish(new UserCreatedEvent(user.Id, user.Email));
+        Console.WriteLine("PublishEndpoint type: " + _publishEndpoint.GetType().FullName);
+        Console.WriteLine("About to publish UserCreatedEvent for user: " + user.Id);
+
+        try
+        {
+            await _publishEndpoint.Publish(
+                new UserCreatedEvent(user.Id, user.Email),
+                cancellationToken
+            );
+            Console.WriteLine("Publish call completed without exception");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+            throw;
+        }
+
+        Console.WriteLine("After publish");
         await _mediator.Publish(new UserCreatedNotification(user.Id, user.Email));
 
         return new UserDto

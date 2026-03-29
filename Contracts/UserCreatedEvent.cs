@@ -1,8 +1,6 @@
-using MediatR;
+﻿namespace Contracts;
 
-namespace Contracts;
-
-public class UserCreatedEvent : INotification
+public class UserCreatedEvent
 {
     public Guid UserId { get; }
     public String Email { get; }

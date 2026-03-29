@@ -41,11 +41,23 @@ services:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
     ports:
-      - "5672:5672"    # AMQP broker port
-      - "15672:15672"  # Management UI
+      - "5672:5672" # AMQP broker port
+      - "15672:15672" # Management UI
     networks:
       - mynetwork
 
+  loki:
+    image: grafana/loki:2.9.0
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+
+  grafana:
+    image: grafana/grafana:10.0.0
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admink
 networks:
   mynetwork:
     driver: bridge

@@ -11,6 +11,13 @@ public class FakeEmailService : IEmailService
 
     public List<SentEmail> SentEmails { get; } = new();
 
+    private readonly ILogger<FakeEmailService> _logger;
+
+    public FakeEmailService(ILogger<FakeEmailService> logger)
+    {
+        _logger = logger;
+    }
+
     public Task SendWelcomeEmail(String email)
     {
         SentEmails.Add(
@@ -23,7 +30,7 @@ public class FakeEmailService : IEmailService
                 SentAt = DateTime.UtcNow,
             }
         );
-        Console.WriteLine("Sending welcome email.");
+        _logger.LogInformation("Sending welcome email.");
         return Task.CompletedTask;
     }
 
@@ -57,7 +64,7 @@ public class FakeEmailService : IEmailService
         return Task.CompletedTask;
     }
 
-    public bool WasEmailSent(string email) => SentEmails.Any(e => e.Email == email);
+    public Boolean WasEmailSent(string email) => SentEmails.Any(e => e.Email == email);
 
     public SentEmail? GetLastEmail() => SentEmails.LastOrDefault();
 

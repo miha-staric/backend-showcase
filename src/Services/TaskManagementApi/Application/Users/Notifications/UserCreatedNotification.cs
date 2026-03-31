@@ -1,6 +1,6 @@
 using MediatR;
 
-namespace Contracts;
+namespace Notifications;
 
 public class UserCreatedNotification : INotification
 {

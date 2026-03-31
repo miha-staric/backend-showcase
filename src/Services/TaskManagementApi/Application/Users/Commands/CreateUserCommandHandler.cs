@@ -3,6 +3,7 @@ using FluentValidation;
 using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Notifications;
 using Services.Caching;
 using ZiggyCreatures.Caching.Fusion;
 

@@ -1,5 +1,5 @@
-using Contracts;
 using MediatR;
+using Notifications;
 
 public class SendWelcomeEmailHandler : INotificationHandler<UserCreatedNotification>
 {

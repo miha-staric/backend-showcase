@@ -85,24 +85,11 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserD
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        Console.WriteLine("PublishEndpoint type: " + _publishEndpoint.GetType().FullName);
-        Console.WriteLine("About to publish UserCreatedEvent for user: " + user.Id);
+        await _publishEndpoint.Publish(
+            new UserCreatedEvent(user.Id, user.Email),
+            cancellationToken
+        );
 
-        try
-        {
-            await _publishEndpoint.Publish(
-                new UserCreatedEvent(user.Id, user.Email),
-                cancellationToken
-            );
-            Console.WriteLine("Publish call completed without exception");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.ToString());
-            throw;
-        }
-
-        Console.WriteLine("After publish");
         await _mediator.Publish(new UserCreatedNotification(user.Id, user.Email));
 
         return new UserDto

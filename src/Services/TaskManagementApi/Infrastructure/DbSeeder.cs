@@ -8,13 +8,13 @@ public static class DbSeeder
             return;
 
         // Tenants
-        var tenantA = new Tenant
+        Tenant tenantA = new Tenant
         {
             Id = Guid.Parse("4da30340-fda0-49b0-b564-f511c630d221"),
             Title = "Tenant-A",
             Enabled = true,
         };
-        var tenantB = new Tenant
+        Tenant tenantB = new Tenant
         {
             Id = Guid.Parse("2337e27f-58eb-4973-9b43-4b795dac1ad7"),
             Title = "Tenant-B",
@@ -23,19 +23,19 @@ public static class DbSeeder
         db.Tenants.AddRange(tenantA, tenantB);
 
         // Users
-        var alice = new User
+        User alice = new User
         {
             Id = Guid.Parse("bef81bfc-2cbb-4321-bd4a-cecb244dadcb"),
             Username = "alice",
             Email = "alice@tenant-a.example.com",
         };
-        var bob = new User
+        User bob = new User
         {
             Id = Guid.Parse("657ca4fa-fb2d-4180-80db-1403c6b8579e"),
             Username = "bob",
             Email = "bob@tenant-a.example.com",
         };
-        var carol = new User
+        User carol = new User
         {
             Id = Guid.Parse("1b33930d-4437-41ee-9b10-a864b40cec78"),
             Username = "carol",
@@ -46,7 +46,7 @@ public static class DbSeeder
         await db.SaveChangesAsync();
 
         // UserTenants
-        var userTenants = new List<UserTenant>
+        List<UserTenant> userTenants = new List<UserTenant>
         {
             new()
             {
@@ -74,7 +74,7 @@ public static class DbSeeder
         await db.SaveChangesAsync();
 
         // Tasks
-        var task1 = new TaskItem
+        TaskItem task1 = new TaskItem
         {
             Id = Guid.Parse("d907410e-5860-4cc4-8800-2230895c001f"),
             TenantId = tenantB.Id,
@@ -82,7 +82,7 @@ public static class DbSeeder
             Status = TaskStatus.New,
             PrimaryAssigneeId = carol.Id,
         };
-        var task2 = new TaskItem
+        TaskItem task2 = new TaskItem
         {
             Id = Guid.Parse("c534787f-dfb8-4269-8941-791efcb8c4e4"),
             TenantId = tenantA.Id,
@@ -94,7 +94,7 @@ public static class DbSeeder
         await db.SaveChangesAsync();
 
         // UserTasks
-        var userTasks = new List<UserTask>
+        List<UserTask> userTasks = new List<UserTask>
         {
             new()
             {
@@ -117,7 +117,7 @@ public static class DbSeeder
         await db.SaveChangesAsync();
 
         // Comments
-        var comments = new List<Comment>
+        List<Comment> comments = new List<Comment>
         {
             new()
             {

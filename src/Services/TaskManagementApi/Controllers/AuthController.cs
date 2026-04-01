@@ -23,7 +23,7 @@ public class AuthController : ControllerBase
     [HttpPost("token")]
     public async Task<IActionResult> GetToken([FromBody] GetAccessTokenCommand command)
     {
-        String? result = await _mediator.Send(command);
+        string? result = await _mediator.Send(command);
         return Ok(result);
     }
 }

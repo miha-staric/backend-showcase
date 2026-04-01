@@ -1,4 +1,4 @@
 using MediatR;
 
-public record CreateCommentCommand(Guid TaskId, Guid UserId, String Subject, String Content)
+public record CreateCommentCommand(Guid TaskId, Guid UserId, string Subject, string Content)
     : IRequest<CommentDto>;

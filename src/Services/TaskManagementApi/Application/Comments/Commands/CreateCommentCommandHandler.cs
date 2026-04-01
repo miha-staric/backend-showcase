@@ -33,7 +33,7 @@ public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand,
             _tenantContext.TenantId
             ?? throw new InvalidOperationException("TenantId is required to create comments.");
 
-        String cacheKey = _commentCacheHelper.GetCommentsKey(tenantId);
+        string cacheKey = _commentCacheHelper.GetCommentsKey(tenantId);
 
         Comment comment = new Comment
         {

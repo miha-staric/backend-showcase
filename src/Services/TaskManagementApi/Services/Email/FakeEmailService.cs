@@ -2,10 +2,10 @@ public class FakeEmailService : IEmailService
 {
     public class SentEmail
     {
-        public String Email { get; set; } = "";
-        public String EmailType { get; set; } = "";
-        public String Subject { get; set; } = "";
-        public String Body { get; set; } = "";
+        public string Email { get; set; } = "";
+        public string EmailType { get; set; } = "";
+        public string Subject { get; set; } = "";
+        public string Body { get; set; } = "";
         public DateTime SentAt { get; set; }
     }
 
@@ -18,7 +18,7 @@ public class FakeEmailService : IEmailService
         _logger = logger;
     }
 
-    public Task SendWelcomeEmail(String email)
+    public Task SendWelcomeEmail(string email)
     {
         SentEmails.Add(
             new SentEmail
@@ -34,7 +34,7 @@ public class FakeEmailService : IEmailService
         return Task.CompletedTask;
     }
 
-    public Task SendPasswordResetEmail(String email, String resetToken)
+    public Task SendPasswordResetEmail(string email, string resetToken)
     {
         SentEmails.Add(
             new SentEmail
@@ -49,7 +49,7 @@ public class FakeEmailService : IEmailService
         return Task.CompletedTask;
     }
 
-    public Task SendNotificationEmail(String email, String subject, String body)
+    public Task SendNotificationEmail(string email, string subject, string body)
     {
         SentEmails.Add(
             new SentEmail
@@ -64,7 +64,7 @@ public class FakeEmailService : IEmailService
         return Task.CompletedTask;
     }
 
-    public Boolean WasEmailSent(string email) => SentEmails.Any(e => e.Email == email);
+    public bool WasEmailSent(string email) => SentEmails.Any(e => e.Email == email);
 
     public SentEmail? GetLastEmail() => SentEmails.LastOrDefault();
 

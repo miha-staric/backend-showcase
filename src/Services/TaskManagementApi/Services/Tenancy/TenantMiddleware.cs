@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Primitives;
 
 public class TenantMiddleware
 {
@@ -26,7 +27,7 @@ public class TenantMiddleware
             return;
         }
 
-        if (!context.Request.Headers.TryGetValue("X-Tenant-Id", out var tenantHeader))
+        if (!context.Request.Headers.TryGetValue("X-Tenant-Id", out StringValues tenantHeader))
         {
             context.Response.StatusCode = 400;
             await context.Response.WriteAsync("Tenant header missing");
@@ -40,7 +41,7 @@ public class TenantMiddleware
             return;
         }
 
-        String? userIdString = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        string? userIdString = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
         if (userIdString == null)
         {

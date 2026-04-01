@@ -1,6 +1,6 @@
 public interface IEmailService
 {
-    Task SendWelcomeEmail(String email);
-    Task SendPasswordResetEmail(String email, String resetToken);
-    Task SendNotificationEmail(String email, String subject, String body);
+    Task SendWelcomeEmail(string email);
+    Task SendPasswordResetEmail(string email, string resetToken);
+    Task SendNotificationEmail(string email, string subject, string body);
 }

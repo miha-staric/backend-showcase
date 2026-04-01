@@ -33,7 +33,7 @@ public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, TaskD
             _tenantContext.TenantId
             ?? throw new InvalidOperationException("TenantId is required to update tasks.");
 
-        String cacheKey = _taskCacheHelper.GetTasksKey(tenantId);
+        string cacheKey = _taskCacheHelper.GetTasksKey(tenantId);
 
         TaskItem? task = await _dbContext.Tasks.FirstOrDefaultAsync(t =>
             t.Id == request.Id && t.TenantId == request.TenantId

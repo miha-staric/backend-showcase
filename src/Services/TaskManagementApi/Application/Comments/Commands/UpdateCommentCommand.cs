@@ -5,6 +5,6 @@ public record UpdateCommentCommand(
     Guid TenantId,
     Guid TaskId,
     Guid UserId,
-    String Subject,
-    String Content
+    string Subject,
+    string Content
 ) : IRequest<CommentDto?>;

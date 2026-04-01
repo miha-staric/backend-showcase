@@ -1,3 +1,3 @@
 using MediatR;
 
-public record RemoveUserFromTenantCommand(Guid UserId) : IRequest<Boolean>;
+public record RemoveUserFromTenantCommand(Guid UserId) : IRequest<bool>;

@@ -33,7 +33,7 @@ public class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand, TaskD
             _tenantContext.TenantId
             ?? throw new InvalidOperationException("TenantId is required to create tasks.");
 
-        String cacheKey = _taskCacheHelper.GetTasksKey(tenantId);
+        string cacheKey = _taskCacheHelper.GetTasksKey(tenantId);
 
         TaskItem task = new TaskItem
         {
@@ -51,7 +51,7 @@ public class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand, TaskD
         {
             Guid userId = request.PrimaryAssigneeId.Value;
 
-            Boolean userExists = await _dbContext.Users.AnyAsync(
+            bool userExists = await _dbContext.Users.AnyAsync(
                 u => u.Id == userId,
                 cancellationToken
             );
@@ -59,7 +59,7 @@ public class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand, TaskD
             if (!userExists)
                 throw new InvalidOperationException("Primary assignee user does not exist.");
 
-            Boolean userTenantExists = await _dbContext.UserTenant.AnyAsync(
+            bool userTenantExists = await _dbContext.UserTenant.AnyAsync(
                 ut => ut.UserId == userId && ut.TenantId == tenantId,
                 cancellationToken
             );

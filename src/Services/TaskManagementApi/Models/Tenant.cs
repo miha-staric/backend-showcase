@@ -1,7 +1,6 @@
 public class Tenant
 {
     public Guid Id { get; set; }
-    public String Title { get; set; } = "";
-    public Boolean Enabled { get; set; }
+    public string Title { get; set; } = "";
+    public bool Enabled { get; set; }
 }
-

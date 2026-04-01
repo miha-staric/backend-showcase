@@ -63,7 +63,7 @@ public class CommentsController : ControllerBase
     [HttpDelete("{commentId}")]
     public async Task<ActionResult> DeleteComment(Guid commentId)
     {
-        Boolean result = await _mediator.Send(new DeleteCommentCommand(commentId));
+        bool result = await _mediator.Send(new DeleteCommentCommand(commentId));
 
         if (!result)
             return NotFound();

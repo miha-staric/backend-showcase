@@ -4,8 +4,7 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Services.Caching;
 
-public class RemoveUserFromTenantCommandHandler
-    : IRequestHandler<RemoveUserFromTenantCommand, Boolean>
+public class RemoveUserFromTenantCommandHandler : IRequestHandler<RemoveUserFromTenantCommand, bool>
 {
     private readonly AppDbContext _dbContext;
     private readonly IPublishEndpoint _publishEndpoint;
@@ -25,7 +24,7 @@ public class RemoveUserFromTenantCommandHandler
         _userCacheHelper = userCacheHelper;
     }
 
-    public async Task<Boolean> Handle(
+    public async Task<bool> Handle(
         RemoveUserFromTenantCommand request,
         CancellationToken cancellationToken
     )

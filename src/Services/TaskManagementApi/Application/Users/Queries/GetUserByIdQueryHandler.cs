@@ -38,7 +38,7 @@ public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserDto
             cacheKey,
             async _ =>
             {
-                var user = await _db
+                UserDto? user = await _db
                     .Users.Where(u => u.Id == request.UserId)
                     .Select(u => new UserDto
                     {

@@ -21,9 +21,9 @@ Log.Logger = new LoggerConfiguration()
 builder.Host.UseSerilog();
 
 // Authentication - Keycloak
-var keycloakSettings = builder.Configuration.GetSection("Keycloak");
-var authority = keycloakSettings["Authority"];
-var audience = keycloakSettings["Audience"];
+IConfigurationSection keycloakSettings = builder.Configuration.GetSection("Keycloak");
+string? authority = keycloakSettings["Authority"];
+string? audience = keycloakSettings["Audience"];
 
 // Add services
 builder.Services.AddEndpointsApiExplorer();
@@ -153,7 +153,7 @@ if (app.Environment.IsDevelopment())
         AppDbContext db = provider.GetRequiredService<AppDbContext>();
         IFusionCache? cache = provider.GetRequiredService<IFusionCache>();
 
-        Boolean reset = args.Contains("--reset");
+        bool reset = args.Contains("--reset");
 
         if (reset)
         {

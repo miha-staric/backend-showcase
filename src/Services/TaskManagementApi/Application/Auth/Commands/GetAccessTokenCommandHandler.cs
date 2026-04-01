@@ -1,6 +1,6 @@
 using MediatR;
 
-public class GetAccessTokenCommandHandler : IRequestHandler<GetAccessTokenCommand, String>
+public class GetAccessTokenCommandHandler : IRequestHandler<GetAccessTokenCommand, string>
 {
     private readonly HttpClient _httpClient;
 

@@ -11,7 +11,6 @@ public class TenantService : ITenantService
 
     public async Task<bool> TenantExistsAsync(Guid tenantId)
     {
-        return await _dbContext.UserTenant
-            .AnyAsync(t => t.TenantId == tenantId);
+        return await _dbContext.UserTenant.AnyAsync(t => t.TenantId == tenantId);
     }
 }

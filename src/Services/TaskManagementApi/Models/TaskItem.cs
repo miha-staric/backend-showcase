@@ -3,7 +3,7 @@ public class TaskItem
     public Guid Id { get; set; }
     public Guid TenantId { get; set; }
 
-    public String Title { get; set; } = "";
+    public string Title { get; set; } = "";
     public TaskStatus Status { get; set; }
 
     public Guid? PrimaryAssigneeId { get; set; }

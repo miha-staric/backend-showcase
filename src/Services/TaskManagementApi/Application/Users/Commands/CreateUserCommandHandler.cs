@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Notifications;
 using Services.Caching;
 using ZiggyCreatures.Caching.Fusion;
+using ValidationResult = FluentValidation.Results.ValidationResult;
 
 public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserDto>
 {
@@ -41,7 +42,10 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserD
         CancellationToken cancellationToken
     )
     {
-        var validationResult = await _userValidator.ValidateAsync(request, cancellationToken);
+        ValidationResult validationResult = await _userValidator.ValidateAsync(
+            request,
+            cancellationToken
+        );
 
         if (!validationResult.IsValid)
             throw new ValidationException(validationResult.Errors);
@@ -81,7 +85,7 @@ public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserD
 
         _dbContext.UserTenant.Add(userTenant);
 
-        String cacheKey = _userCacheHelper.GetUsersKey(tenantId);
+        string cacheKey = _userCacheHelper.GetUsersKey(tenantId);
         await _cache.RemoveAsync(cacheKey);
 
         await _dbContext.SaveChangesAsync(cancellationToken);

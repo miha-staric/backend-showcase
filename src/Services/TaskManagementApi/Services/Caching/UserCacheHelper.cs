@@ -14,8 +14,7 @@ namespace Services.Caching
         /// <summary>
         /// Generates the cache key for a tenant-wide user list
         /// </summary>
-        public string GetUsersKey(Guid tenantId) =>
-            $"tenant:{tenantId}:users";
+        public string GetUsersKey(Guid tenantId) => $"tenant:{tenantId}:users";
 
         /// <summary>
         /// Generates the cache key for a single user

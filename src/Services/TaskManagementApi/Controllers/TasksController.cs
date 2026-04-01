@@ -63,7 +63,7 @@ public class TasksController : ControllerBase
     [HttpDelete("{taskId}")]
     public async Task<ActionResult> DeleteTask(Guid taskId)
     {
-        Boolean result = await _mediator.Send(new DeleteTaskCommand(taskId));
+        bool result = await _mediator.Send(new DeleteTaskCommand(taskId));
 
         if (!result)
             return NotFound();

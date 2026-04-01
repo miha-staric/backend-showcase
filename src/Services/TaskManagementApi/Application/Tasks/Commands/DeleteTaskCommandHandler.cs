@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Services.Caching;
 using ZiggyCreatures.Caching.Fusion;
 
-public class DeleteTaskCommandHandler : IRequestHandler<DeleteTaskCommand, Boolean>
+public class DeleteTaskCommandHandler : IRequestHandler<DeleteTaskCommand, bool>
 {
     private readonly AppDbContext _dbContext;
     private readonly IPublishEndpoint _publishEndpoint;
@@ -31,10 +31,7 @@ public class DeleteTaskCommandHandler : IRequestHandler<DeleteTaskCommand, Boole
         _commentCacheHelper = commentCacheHelper;
     }
 
-    public async Task<Boolean> Handle(
-        DeleteTaskCommand request,
-        CancellationToken cancellationToken
-    )
+    public async Task<bool> Handle(DeleteTaskCommand request, CancellationToken cancellationToken)
     {
         Guid tenantId =
             _tenantContext.TenantId

@@ -5,8 +5,8 @@ public class CommentDto
     public Guid TaskId { get; set; }
     public Guid UserId { get; set; }
 
-    public String Subject { get; set; } = "";
-    public String Content { get; set; } = "";
+    public string Subject { get; set; } = "";
+    public string Content { get; set; } = "";
 
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }

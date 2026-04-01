@@ -33,7 +33,7 @@ public class UpdateCommentCommandHandler : IRequestHandler<UpdateCommentCommand,
             _tenantContext.TenantId
             ?? throw new InvalidOperationException("TenantId is required to update comments.");
 
-        String cacheKey = _commentCacheHelper.GetCommentsKey(tenantId);
+        string cacheKey = _commentCacheHelper.GetCommentsKey(tenantId);
 
         Comment? comment = await _dbContext.Comments.FirstOrDefaultAsync(c =>
             c.Id == request.Id && c.TenantId == request.TenantId

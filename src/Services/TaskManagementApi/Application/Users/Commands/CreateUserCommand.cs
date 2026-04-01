@@ -1,4 +1,4 @@
 using MediatR;
 
-public record CreateUserCommand(String Username, String Email, UserRole UserRole)
+public record CreateUserCommand(string Username, string Email, UserRole UserRole)
     : IRequest<UserDto>;

@@ -1,4 +1,4 @@
 public interface ITenantService
 {
-    Task<Boolean> TenantExistsAsync(Guid tenantId);
+    Task<bool> TenantExistsAsync(Guid tenantId);
 }

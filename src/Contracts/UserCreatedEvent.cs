@@ -1,13 +1,7 @@
 ﻿namespace Contracts;
 
-public class UserCreatedEvent
+public class UserCreatedEvent(Guid userId, string email)
 {
-    public Guid UserId { get; }
-    public String Email { get; }
-
-    public UserCreatedEvent(Guid userId, String email)
-    {
-        UserId = userId;
-        Email = email;
-    }
+    public Guid UserId { get; } = userId;
+    public string Email { get; } = email;
 }

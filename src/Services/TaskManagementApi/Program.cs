@@ -13,8 +13,12 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 // Serilog Configuration
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
-    .WriteTo.Console()
-    .WriteTo.File("logs/app-.txt", rollingInterval: RollingInterval.Day)
+    .WriteTo.Console(formatProvider: System.Globalization.CultureInfo.InvariantCulture)
+    .WriteTo.File(
+        path: "logs/app-.txt",
+        formatProvider: System.Globalization.CultureInfo.InvariantCulture,
+        rollingInterval: RollingInterval.Day
+    )
     .Enrich.FromLogContext()
     .CreateLogger();
 
@@ -65,12 +69,7 @@ builder
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-        options.JsonSerializerOptions.ReferenceHandler = System
-            .Text
-            .Json
-            .Serialization
-            .ReferenceHandler
-            .IgnoreCycles;
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
         options.JsonSerializerOptions.WriteIndented = true;
     });
 builder.Services.AddHttpContextAccessor();
@@ -125,13 +124,9 @@ builder.Services.AddSingleton<TaskCacheHelper>();
 builder.Services.AddSingleton<CommentCacheHelper>();
 builder.Services.AddTransient<IValidator<CreateUserCommand>, UserValidator>();
 builder.Services.AddHttpClient<GetAccessTokenCommandHandler>(client =>
-{
-    client.BaseAddress = new Uri("http://keycloak:8080");
-});
-builder.Services.Configure<RouteOptions>(options =>
-{
-    options.LowercaseUrls = true;
-});
+    client.BaseAddress = new Uri("http://keycloak:8080")
+);
+builder.Services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 builder.Services.AddSingleton<IEmailService, FakeEmailService>();
 builder.Services.AddTransient<ILoggingService, LoggingService>();
 
@@ -139,11 +134,8 @@ builder.Services.AddTransient<ILoggingService, LoggingService>();
 WebApplication app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger(options =>
-    {
-        options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1;
-    });
-    app.UseSwaggerUI();
+    _ = app.UseSwagger(options => options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1);
+    _ = app.UseSwaggerUI();
 
     if (args.Contains("--seed"))
     {
@@ -158,7 +150,7 @@ if (app.Environment.IsDevelopment())
         if (reset)
         {
             Console.WriteLine("Resetting database...");
-            await db.Database.EnsureDeletedAsync();
+            _ = await db.Database.EnsureDeletedAsync();
             await db.Database.MigrateAsync();
             Console.WriteLine("Database reset complete.");
         }

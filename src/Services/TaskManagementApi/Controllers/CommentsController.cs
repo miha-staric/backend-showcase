@@ -2,72 +2,70 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-[ApiController]
-[Route("api/[controller]")]
-[Authorize]
-public class CommentsController : ControllerBase
+namespace TaskManagementApi.Controllers
 {
-    private readonly IMediator _mediator;
-
-    public CommentsController(IMediator mediator)
+    [ApiController]
+    [Route("api/[controller]")]
+    [Authorize]
+    public class CommentsController(IMediator mediator) : ControllerBase
     {
-        _mediator = mediator;
-    }
+        private readonly IMediator _mediator = mediator;
 
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<CommentDto>>> GetAllComments()
-    {
-        IEnumerable<CommentDto?> comments = await _mediator.Send(new GetCommentsQuery());
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<CommentDto>>> GetAllComments()
+        {
+            IEnumerable<CommentDto?> comments = await _mediator.Send(new GetCommentsQuery());
 
-        return Ok(comments);
-    }
+            return Ok(comments);
+        }
 
-    [HttpGet("{commentId}")]
-    public async Task<ActionResult<CommentDto>> GetCommentById(Guid commentId)
-    {
-        CommentDto? comment = await _mediator.Send(new GetCommentByIdQuery(commentId));
+        [HttpGet("{commentId}")]
+        public async Task<ActionResult<CommentDto>> GetCommentById(Guid commentId)
+        {
+            CommentDto? comment = await _mediator.Send(new GetCommentByIdQuery(commentId));
 
-        if (comment == null)
-            return NotFound();
+            if (comment == null)
+                return NotFound();
 
-        return Ok(comment);
-    }
+            return Ok(comment);
+        }
 
-    [HttpPost]
-    public async Task<ActionResult<CommentDto>> CreateComment(
-        [FromBody] CreateCommentCommand command
-    )
-    {
-        CommentDto? createdComment = await _mediator.Send(command);
+        [HttpPost]
+        public async Task<ActionResult<CommentDto>> CreateComment(
+            [FromBody] CreateCommentCommand command
+        )
+        {
+            CommentDto? createdComment = await _mediator.Send(command);
 
-        return CreatedAtAction(
-            nameof(GetCommentById),
-            new { commentId = createdComment.Id },
-            createdComment
-        );
-    }
+            return CreatedAtAction(
+                nameof(GetCommentById),
+                new { commentId = createdComment.Id },
+                createdComment
+            );
+        }
 
-    [HttpPut("{commentId}")]
-    public async Task<ActionResult<CommentDto>> UpdateComment(
-        [FromBody] UpdateCommentCommand command
-    )
-    {
-        CommentDto? updatedComment = await _mediator.Send(command);
+        [HttpPut]
+        public async Task<ActionResult<CommentDto>> UpdateComment(
+            [FromBody] UpdateCommentCommand command
+        )
+        {
+            CommentDto? updatedComment = await _mediator.Send(command);
 
-        if (updatedComment == null)
-            return NotFound();
+            if (updatedComment == null)
+                return NotFound();
 
-        return Ok(updatedComment);
-    }
+            return Ok(updatedComment);
+        }
 
-    [HttpDelete("{commentId}")]
-    public async Task<ActionResult> DeleteComment(Guid commentId)
-    {
-        bool result = await _mediator.Send(new DeleteCommentCommand(commentId));
+        [HttpDelete("{commentId}")]
+        public async Task<ActionResult> DeleteComment(Guid commentId)
+        {
+            bool result = await _mediator.Send(new DeleteCommentCommand(commentId));
 
-        if (!result)
-            return NotFound();
+            if (!result)
+                return NotFound();
 
-        return NoContent();
+            return NoContent();
+        }
     }
 }

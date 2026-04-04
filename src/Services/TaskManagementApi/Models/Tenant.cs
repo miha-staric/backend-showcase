@@ -1,3 +1,5 @@
+namespace TaskManagementApi.Models;
+
 public class Tenant
 {
     public Guid Id { get; set; }

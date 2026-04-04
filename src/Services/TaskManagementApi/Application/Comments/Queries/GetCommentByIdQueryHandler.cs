@@ -1,27 +1,20 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Services.Caching;
+using TaskManagementApi.Dtos;
 using ZiggyCreatures.Caching.Fusion;
 
-public class GetCommentByIdQueryHandler : IRequestHandler<GetCommentByIdQuery, CommentDto?>
+public class GetCommentByIdQueryHandler(
+    AppDbContext dbContext,
+    ITenantContext tenantContext,
+    IFusionCache cache,
+    CommentCacheHelper commentCacheHelper
+) : IRequestHandler<GetCommentByIdQuery, CommentDto?>
 {
-    private readonly AppDbContext _db;
-    private readonly IFusionCache _cache;
-    private readonly ITenantContext _tenantContext;
-    private readonly CommentCacheHelper _commentCacheHelper;
-
-    public GetCommentByIdQueryHandler(
-        AppDbContext dbContext,
-        ITenantContext tenantContext,
-        IFusionCache cache,
-        CommentCacheHelper commentCacheHelper
-    )
-    {
-        _db = dbContext;
-        _tenantContext = tenantContext;
-        _cache = cache;
-        _commentCacheHelper = commentCacheHelper;
-    }
+    private readonly AppDbContext _db = dbContext;
+    private readonly IFusionCache _cache = cache;
+    private readonly ITenantContext _tenantContext = tenantContext;
+    private readonly CommentCacheHelper _commentCacheHelper = commentCacheHelper;
 
     public async Task<CommentDto?> Handle(
         GetCommentByIdQuery request,

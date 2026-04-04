@@ -1,4 +1,5 @@
 using MediatR;
+using TaskManagementApi.Dtos;
 
 public record UpdateCommentCommand(
     Guid Id,

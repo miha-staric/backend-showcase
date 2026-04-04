@@ -1,3 +1,7 @@
+using TaskStatus = Contracts.Enums.TaskStatus;
+
+namespace TaskManagementApi.Dtos;
+
 public class TaskDto
 {
     public Guid Id { get; set; }

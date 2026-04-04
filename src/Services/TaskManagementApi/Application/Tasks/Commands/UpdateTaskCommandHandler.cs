@@ -3,26 +3,21 @@ using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Services.Caching;
+using TaskManagementApi.Dtos;
+using TaskManagementApi.Models;
+using TaskStatus = Contracts.Enums.TaskStatus;
 
-public class UpdateTaskCommandHandler : IRequestHandler<UpdateTaskCommand, TaskDto?>
+public class UpdateTaskCommandHandler(
+    AppDbContext db,
+    IPublishEndpoint publishEndpoint,
+    ITenantContext tenantContext,
+    TaskCacheHelper taskCacheHelper
+) : IRequestHandler<UpdateTaskCommand, TaskDto?>
 {
-    private readonly AppDbContext _dbContext;
-    private readonly IPublishEndpoint _publishEndpoint;
-    private readonly ITenantContext _tenantContext;
-    private readonly TaskCacheHelper _taskCacheHelper;
-
-    public UpdateTaskCommandHandler(
-        AppDbContext db,
-        IPublishEndpoint publishEndpoint,
-        ITenantContext tenantContext,
-        TaskCacheHelper taskCacheHelper
-    )
-    {
-        _dbContext = db;
-        _publishEndpoint = publishEndpoint;
-        _tenantContext = tenantContext;
-        _taskCacheHelper = taskCacheHelper;
-    }
+    private readonly AppDbContext _dbContext = db;
+    private readonly IPublishEndpoint _publishEndpoint = publishEndpoint;
+    private readonly ITenantContext _tenantContext = tenantContext;
+    private readonly TaskCacheHelper _taskCacheHelper = taskCacheHelper;
 
     public async Task<TaskDto?> Handle(
         UpdateTaskCommand request,

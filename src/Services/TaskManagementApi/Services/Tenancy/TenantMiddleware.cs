@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
+using TaskManagementApi.Models;
 
 public class TenantMiddleware
 {

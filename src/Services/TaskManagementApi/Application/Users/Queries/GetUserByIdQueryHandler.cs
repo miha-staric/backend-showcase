@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Services.Caching;
+using TaskManagementApi.Dtos;
 using ZiggyCreatures.Caching.Fusion;
 
 public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserDto?>

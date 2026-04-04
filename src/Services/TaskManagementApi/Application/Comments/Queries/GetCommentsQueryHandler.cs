@@ -1,27 +1,20 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Services.Caching;
+using TaskManagementApi.Dtos;
 using ZiggyCreatures.Caching.Fusion;
 
-public class GetCommentsQueryHandler : IRequestHandler<GetCommentsQuery, IEnumerable<CommentDto?>>
+public class GetCommentsQueryHandler(
+    AppDbContext dbContext,
+    ITenantContext tenantContext,
+    IFusionCache cache,
+    CommentCacheHelper commentCacheHelper
+) : IRequestHandler<GetCommentsQuery, IEnumerable<CommentDto?>>
 {
-    private readonly AppDbContext _db;
-    private readonly ITenantContext _tenantContext;
-    private readonly IFusionCache _cache;
-    private readonly CommentCacheHelper _commentCacheHelper;
-
-    public GetCommentsQueryHandler(
-        AppDbContext dbContext,
-        ITenantContext tenantContext,
-        IFusionCache cache,
-        CommentCacheHelper commentCacheHelper
-    )
-    {
-        _db = dbContext;
-        _cache = cache;
-        _tenantContext = tenantContext;
-        _commentCacheHelper = commentCacheHelper;
-    }
+    private readonly AppDbContext _db = dbContext;
+    private readonly ITenantContext _tenantContext = tenantContext;
+    private readonly IFusionCache _cache = cache;
+    private readonly CommentCacheHelper _commentCacheHelper = commentCacheHelper;
 
     public async Task<IEnumerable<CommentDto?>> Handle(
         GetCommentsQuery request,

@@ -2,12 +2,7 @@ using MediatR;
 
 namespace Contracts;
 
-public class TaskUpdatedEvent : INotification
+public class TaskUpdatedEvent(Guid taskId) : INotification
 {
-    public Guid Id { get; }
-
-    public TaskUpdatedEvent(Guid taskId)
-    {
-        Id = taskId;
-    }
+    public Guid Id { get; } = taskId;
 }

@@ -1,3 +1,5 @@
+namespace TaskManagementApi.Dtos;
+
 public class TenantDto
 {
     public Guid Id { get; set; }

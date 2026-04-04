@@ -1,3 +1,8 @@
+using Contracts.Enums;
+using TaskStatus = Contracts.Enums.TaskStatus;
+
+namespace TaskManagementApi.Models;
+
 public class TaskItem
 {
     public Guid Id { get; set; }
@@ -13,12 +18,4 @@ public class TaskItem
 
     public List<UserTask> UserTasks { get; set; } = null!;
     public List<Comment> Comments { get; set; } = null!;
-}
-
-public enum TaskStatus
-{
-    New,
-    InProgress,
-    Finished,
-    Closed,
 }

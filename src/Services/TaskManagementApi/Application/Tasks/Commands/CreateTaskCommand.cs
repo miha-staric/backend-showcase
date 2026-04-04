@@ -1,4 +1,5 @@
 using MediatR;
+using TaskManagementApi.Dtos;
 
 public record CreateTaskCommand(
     string Title,

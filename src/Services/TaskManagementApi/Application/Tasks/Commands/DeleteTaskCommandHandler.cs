@@ -3,33 +3,26 @@ using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Services.Caching;
+using TaskManagementApi.Models;
 using ZiggyCreatures.Caching.Fusion;
+using TaskStatus = Contracts.Enums.TaskStatus;
+using UserRole = Contracts.Enums.UserRole;
 
-public class DeleteTaskCommandHandler : IRequestHandler<DeleteTaskCommand, bool>
+public class DeleteTaskCommandHandler(
+    AppDbContext dbContext,
+    IPublishEndpoint publishEndpoint,
+    ITenantContext tenantContext,
+    IFusionCache cache,
+    TaskCacheHelper taskCacheHelper,
+    CommentCacheHelper commentCacheHelper
+) : IRequestHandler<DeleteTaskCommand, bool>
 {
-    private readonly AppDbContext _dbContext;
-    private readonly IPublishEndpoint _publishEndpoint;
-    private readonly ITenantContext _tenantContext;
-    private readonly IFusionCache _cache;
-    private readonly TaskCacheHelper _taskCacheHelper;
-    private readonly CommentCacheHelper _commentCacheHelper;
-
-    public DeleteTaskCommandHandler(
-        AppDbContext dbContext,
-        IPublishEndpoint publishEndpoint,
-        ITenantContext tenantContext,
-        IFusionCache cache,
-        TaskCacheHelper taskCacheHelper,
-        CommentCacheHelper commentCacheHelper
-    )
-    {
-        _dbContext = dbContext;
-        _publishEndpoint = publishEndpoint;
-        _tenantContext = tenantContext;
-        _cache = cache;
-        _taskCacheHelper = taskCacheHelper;
-        _commentCacheHelper = commentCacheHelper;
-    }
+    private readonly AppDbContext _dbContext = dbContext;
+    private readonly IPublishEndpoint _publishEndpoint = publishEndpoint;
+    private readonly ITenantContext _tenantContext = tenantContext;
+    private readonly IFusionCache _cache = cache;
+    private readonly TaskCacheHelper _taskCacheHelper = taskCacheHelper;
+    private readonly CommentCacheHelper _commentCacheHelper = commentCacheHelper;
 
     public async Task<bool> Handle(DeleteTaskCommand request, CancellationToken cancellationToken)
     {

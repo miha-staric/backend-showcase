@@ -3,26 +3,21 @@ using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Services.Caching;
+using TaskManagementApi.Dtos;
+using TaskManagementApi.Models;
+using TaskStatus = Contracts.Enums.TaskStatus;
 
-public class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand, TaskDto>
+public class CreateTaskCommandHandler(
+    AppDbContext dbContext,
+    IPublishEndpoint publishEndpoint,
+    ITenantContext tenantContext,
+    TaskCacheHelper taskCacheHelper
+) : IRequestHandler<CreateTaskCommand, TaskDto>
 {
-    private readonly AppDbContext _dbContext;
-    private readonly IPublishEndpoint _publishEndpoint;
-    private readonly ITenantContext _tenantContext;
-    private readonly TaskCacheHelper _taskCacheHelper;
-
-    public CreateTaskCommandHandler(
-        AppDbContext dbContext,
-        IPublishEndpoint publishEndpoint,
-        ITenantContext tenantContext,
-        TaskCacheHelper taskCacheHelper
-    )
-    {
-        _dbContext = dbContext;
-        _publishEndpoint = publishEndpoint;
-        _tenantContext = tenantContext;
-        _taskCacheHelper = taskCacheHelper;
-    }
+    private readonly AppDbContext _dbContext = dbContext;
+    private readonly IPublishEndpoint _publishEndpoint = publishEndpoint;
+    private readonly ITenantContext _tenantContext = tenantContext;
+    private readonly TaskCacheHelper _taskCacheHelper = taskCacheHelper;
 
     public async Task<TaskDto> Handle(
         CreateTaskCommand request,
@@ -72,7 +67,6 @@ public class CreateTaskCommandHandler : IRequestHandler<CreateTaskCommand, TaskD
                 UserId = userId,
                 TaskItemId = task.Id,
                 TenantId = tenantId,
-                Role = Roles.Assignee,
                 CreatedAt = DateTimeOffset.UtcNow,
             };
 

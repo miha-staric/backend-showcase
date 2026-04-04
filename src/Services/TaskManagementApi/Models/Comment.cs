@@ -1,3 +1,5 @@
+namespace TaskManagementApi.Models;
+
 public class Comment
 {
     public Guid Id { get; set; }

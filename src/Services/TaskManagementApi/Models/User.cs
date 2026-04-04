@@ -1,3 +1,5 @@
+namespace TaskManagementApi.Models;
+
 public class User
 {
     public Guid Id { get; set; }
@@ -5,7 +7,7 @@ public class User
     public string Username { get; set; } = "";
     public string Email { get; set; } = "";
 
-    public List<UserTask> UserTasks { get; set; } = new();
-    public List<UserTenant> UserTenants { get; set; } = new();
-    public List<Comment> Comments { get; set; } = new();
+    public List<UserTask> UserTasks { get; set; } = [];
+    public List<UserTenant> UserTenants { get; set; } = [];
+    public List<Comment> Comments { get; set; } = [];
 }

@@ -1,3 +1,5 @@
+using Contracts.Enums;
+
 public interface ITenantContext
 {
     Guid? TenantId { get; }

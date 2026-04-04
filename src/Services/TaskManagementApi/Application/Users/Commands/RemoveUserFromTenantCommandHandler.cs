@@ -3,26 +3,20 @@ using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Services.Caching;
+using TaskManagementApi.Models;
+using UserRole = Contracts.Enums.UserRole;
 
-public class RemoveUserFromTenantCommandHandler : IRequestHandler<RemoveUserFromTenantCommand, bool>
+public class RemoveUserFromTenantCommandHandler(
+    AppDbContext dbContext,
+    IPublishEndpoint publishEndpoint,
+    ITenantContext tenantContext,
+    UserCacheHelper userCacheHelper
+) : IRequestHandler<RemoveUserFromTenantCommand, bool>
 {
-    private readonly AppDbContext _dbContext;
-    private readonly IPublishEndpoint _publishEndpoint;
-    private readonly ITenantContext _tenantContext;
-    private readonly UserCacheHelper _userCacheHelper;
-
-    public RemoveUserFromTenantCommandHandler(
-        AppDbContext dbContext,
-        IPublishEndpoint publishEndpoint,
-        ITenantContext tenantContext,
-        UserCacheHelper userCacheHelper
-    )
-    {
-        _dbContext = dbContext;
-        _publishEndpoint = publishEndpoint;
-        _tenantContext = tenantContext;
-        _userCacheHelper = userCacheHelper;
-    }
+    private readonly AppDbContext _dbContext = dbContext;
+    private readonly IPublishEndpoint _publishEndpoint = publishEndpoint;
+    private readonly ITenantContext _tenantContext = tenantContext;
+    private readonly UserCacheHelper _userCacheHelper = userCacheHelper;
 
     public async Task<bool> Handle(
         RemoveUserFromTenantCommand request,

@@ -1,3 +1,7 @@
+using Contracts.Enums;
+
+namespace TaskManagementApi.Models;
+
 public class UserTenant
 {
     public Guid UserId { get; set; }
@@ -6,10 +10,4 @@ public class UserTenant
 
     public Guid TenantId { get; set; }
     public UserRole UserRole { get; set; }
-}
-
-public enum UserRole
-{
-    User,
-    Admin,
 }

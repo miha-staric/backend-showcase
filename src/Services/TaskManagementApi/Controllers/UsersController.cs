@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TaskManagementApi.Dtos;
 
 namespace TaskManagementApi.Controllers
 {

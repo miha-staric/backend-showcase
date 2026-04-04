@@ -1,27 +1,21 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Services.Caching;
+using TaskManagementApi.Dtos;
 using ZiggyCreatures.Caching.Fusion;
+using TaskStatus = Contracts.Enums.TaskStatus;
 
-public class GetTaskByIdQueryHandler : IRequestHandler<GetTaskByIdQuery, TaskDto?>
+public class GetTaskByIdQueryHandler(
+    AppDbContext dbContext,
+    ITenantContext tenantContext,
+    IFusionCache cache,
+    TaskCacheHelper taskCacheHelper
+) : IRequestHandler<GetTaskByIdQuery, TaskDto?>
 {
-    private readonly AppDbContext _db;
-    private readonly IFusionCache _cache;
-    private readonly ITenantContext _tenantContext;
-    private readonly TaskCacheHelper _taskCacheHelper;
-
-    public GetTaskByIdQueryHandler(
-        AppDbContext dbContext,
-        ITenantContext tenantContext,
-        IFusionCache cache,
-        TaskCacheHelper taskCacheHelper
-    )
-    {
-        _db = dbContext;
-        _tenantContext = tenantContext;
-        _cache = cache;
-        _taskCacheHelper = taskCacheHelper;
-    }
+    private readonly AppDbContext _db = dbContext;
+    private readonly IFusionCache _cache = cache;
+    private readonly ITenantContext _tenantContext = tenantContext;
+    private readonly TaskCacheHelper _taskCacheHelper = taskCacheHelper;
 
     public async Task<TaskDto?> Handle(
         GetTaskByIdQuery request,

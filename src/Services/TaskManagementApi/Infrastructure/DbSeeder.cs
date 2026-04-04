@@ -1,4 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using TaskManagementApi.Models;
+using TaskStatus = Contracts.Enums.TaskStatus;
+using UserRole = Contracts.Enums.UserRole;
 
 public static class DbSeeder
 {
@@ -101,7 +104,6 @@ public static class DbSeeder
                 UserId = alice.Id,
                 TaskItemId = task2.Id,
                 TenantId = tenantA.Id,
-                Role = Roles.Assignee,
                 CreatedAt = DateTimeOffset.UtcNow,
             },
             new()
@@ -109,7 +111,6 @@ public static class DbSeeder
                 UserId = carol.Id,
                 TaskItemId = task1.Id,
                 TenantId = tenantB.Id,
-                Role = Roles.Assignee,
                 CreatedAt = DateTimeOffset.UtcNow,
             },
         };

@@ -1,41 +1,33 @@
 using Contracts;
+using Contracts.Enums;
 using FluentValidation;
 using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Notifications;
 using Services.Caching;
+using TaskManagementApi.Dtos;
+using TaskManagementApi.Models;
 using ZiggyCreatures.Caching.Fusion;
 using ValidationResult = FluentValidation.Results.ValidationResult;
 
-public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserDto>
+public class CreateUserCommandHandler(
+    AppDbContext dbContext,
+    IMediator mediator,
+    IPublishEndpoint publishEndpoint,
+    ITenantContext tenantContext,
+    UserCacheHelper userCacheHelper,
+    IFusionCache cache,
+    IValidator<CreateUserCommand> userValidator
+) : IRequestHandler<CreateUserCommand, UserDto>
 {
-    private readonly AppDbContext _dbContext;
-    private readonly IMediator _mediator;
-    private readonly IPublishEndpoint _publishEndpoint;
-    private readonly ITenantContext _tenantContext;
-    private readonly UserCacheHelper _userCacheHelper;
-    private readonly IFusionCache _cache;
-    private readonly IValidator<CreateUserCommand> _userValidator;
-
-    public CreateUserCommandHandler(
-        AppDbContext dbContext,
-        IMediator mediator,
-        IPublishEndpoint publishEndpoint,
-        ITenantContext tenantContext,
-        UserCacheHelper userCacheHelper,
-        IFusionCache cache,
-        IValidator<CreateUserCommand> userValidator
-    )
-    {
-        _dbContext = dbContext;
-        _mediator = mediator;
-        _publishEndpoint = publishEndpoint;
-        _tenantContext = tenantContext;
-        _userCacheHelper = userCacheHelper;
-        _cache = cache;
-        _userValidator = userValidator;
-    }
+    private readonly AppDbContext _dbContext = dbContext;
+    private readonly IMediator _mediator = mediator;
+    private readonly IPublishEndpoint _publishEndpoint = publishEndpoint;
+    private readonly ITenantContext _tenantContext = tenantContext;
+    private readonly UserCacheHelper _userCacheHelper = userCacheHelper;
+    private readonly IFusionCache _cache = cache;
+    private readonly IValidator<CreateUserCommand> _userValidator = userValidator;
 
     public async Task<UserDto> Handle(
         CreateUserCommand request,

@@ -2,14 +2,8 @@ using MediatR;
 
 namespace Contracts;
 
-public class UserRemovedFromTenantEvent : INotification
+public class UserRemovedFromTenantEvent(Guid tenantId, Guid userId) : INotification
 {
-    public Guid TenantId { get; }
-    public Guid UserId { get; }
-
-    public UserRemovedFromTenantEvent(Guid tenantId, Guid userId)
-    {
-        TenantId = tenantId;
-        UserId = userId;
-    }
+    public Guid TenantId { get; } = tenantId;
+    public Guid UserId { get; } = userId;
 }

@@ -3,26 +3,20 @@ using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Services.Caching;
+using TaskManagementApi.Dtos;
+using TaskManagementApi.Models;
 
-public class UpdateCommentCommandHandler : IRequestHandler<UpdateCommentCommand, CommentDto?>
+public class UpdateCommentCommandHandler(
+    AppDbContext db,
+    IPublishEndpoint publishEndpoint,
+    ITenantContext tenantContext,
+    CommentCacheHelper commentCacheHelper
+) : IRequestHandler<UpdateCommentCommand, CommentDto?>
 {
-    private readonly AppDbContext _dbContext;
-    private readonly IPublishEndpoint _publishEndpoint;
-    private readonly ITenantContext _tenantContext;
-    private readonly CommentCacheHelper _commentCacheHelper;
-
-    public UpdateCommentCommandHandler(
-        AppDbContext db,
-        IPublishEndpoint publishEndpoint,
-        ITenantContext tenantContext,
-        CommentCacheHelper commentCacheHelper
-    )
-    {
-        _dbContext = db;
-        _publishEndpoint = publishEndpoint;
-        _tenantContext = tenantContext;
-        _commentCacheHelper = commentCacheHelper;
-    }
+    private readonly AppDbContext _dbContext = db;
+    private readonly IPublishEndpoint _publishEndpoint = publishEndpoint;
+    private readonly ITenantContext _tenantContext = tenantContext;
+    private readonly CommentCacheHelper _commentCacheHelper = commentCacheHelper;
 
     public async Task<CommentDto?> Handle(
         UpdateCommentCommand request,

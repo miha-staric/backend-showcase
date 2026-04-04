@@ -1,8 +1,9 @@
 using Contracts;
 using MassTransit;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Services.Caching;
+using TaskManagementApi.Dtos;
+using TaskManagementApi.Models;
 
 public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand, CommentDto>
 {

@@ -1,3 +1,5 @@
+namespace TaskManagementApi.Dtos;
+
 public class CommentDto
 {
     public Guid Id { get; set; }

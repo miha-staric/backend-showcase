@@ -1,6 +1,7 @@
+using TaskManagementApi.Dtos.User;
 using TaskStatus = Contracts.Enums.TaskStatus;
 
-namespace TaskManagementApi.Dtos;
+namespace TaskManagementApi.Dtos.Task;
 
 public class TaskDto
 {

@@ -6,6 +6,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using Serilog;
 using Services.Caching;
+using TaskManagementApi.Application.Auth.Commands;
+using TaskManagementApi.Application.Users.Commands;
+using TaskManagementApi.Data;
+using TaskManagementApi.Infrastructure;
+using TaskManagementApi.Services.Caching;
+using TaskManagementApi.Services.Email;
+using TaskManagementApi.Services.Logging;
+using TaskManagementApi.Services.Tenancy;
 using ZiggyCreatures.Caching.Fusion;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -91,7 +99,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 );
 builder.Services.AddScoped<ITenantContext, TenantContext>();
 builder.Services.AddFusionCache();
-FusionCacheEntryOptions defaultCacheOptions = new FusionCacheEntryOptions
+FusionCacheEntryOptions defaultCacheOptions = new()
 {
     Duration = TimeSpan.FromMinutes(5),
     IsFailSafeEnabled = true,

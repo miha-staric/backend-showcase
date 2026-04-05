@@ -1,15 +1,9 @@
 using MediatR;
 
-namespace Notifications;
+namespace TaskManagementApi.Application.Users.Notifications;
 
-public class UserCreatedNotification : INotification
+public class UserCreatedNotification(Guid userId, string email) : INotification
 {
-    public Guid UserId { get; }
-    public string Email { get; }
-
-    public UserCreatedNotification(Guid userId, string email)
-    {
-        UserId = userId;
-        Email = email;
-    }
+    public Guid UserId { get; } = userId;
+    public string Email { get; } = email;
 }

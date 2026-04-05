@@ -4,19 +4,22 @@ using FluentValidation;
 using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Notifications;
-using Services.Caching;
-using TaskManagementApi.Dtos;
+using TaskManagementApi.Application.Users.Notifications;
+using TaskManagementApi.Data;
+using TaskManagementApi.Dtos.User;
 using TaskManagementApi.Models;
+using TaskManagementApi.Services.Caching;
+using TaskManagementApi.Services.Tenancy;
 using ZiggyCreatures.Caching.Fusion;
 using ValidationResult = FluentValidation.Results.ValidationResult;
+
+namespace TaskManagementApi.Application.Users.Commands;
 
 public class CreateUserCommandHandler(
     AppDbContext dbContext,
     IMediator mediator,
     IPublishEndpoint publishEndpoint,
     ITenantContext tenantContext,
-    UserCacheHelper userCacheHelper,
     IFusionCache cache,
     IValidator<CreateUserCommand> userValidator
 ) : IRequestHandler<CreateUserCommand, UserDto>
@@ -25,7 +28,6 @@ public class CreateUserCommandHandler(
     private readonly IMediator _mediator = mediator;
     private readonly IPublishEndpoint _publishEndpoint = publishEndpoint;
     private readonly ITenantContext _tenantContext = tenantContext;
-    private readonly UserCacheHelper _userCacheHelper = userCacheHelper;
     private readonly IFusionCache _cache = cache;
     private readonly IValidator<CreateUserCommand> _userValidator = userValidator;
 
@@ -47,27 +49,32 @@ public class CreateUserCommandHandler(
             ?? throw new InvalidOperationException("TenantId is required to create users.");
 
         if (_tenantContext.UserRole != UserRole.Admin)
+        {
             throw new InvalidOperationException(
                 "User must have the role of Admin to create users."
             );
+        }
 
-        User? user = new User
+        User? user = new()
         {
             Id = Guid.NewGuid(),
             Username = request.Username,
             Email = request.Email,
         };
 
-        UserTenant? existingUserTenant = await _dbContext.UserTenant.FirstOrDefaultAsync(ut =>
-            ut.TenantId == tenantId && ut.Username == user.Username
+        UserTenant? existingUserTenant = await _dbContext.UserTenant.FirstOrDefaultAsync(
+            ut => ut.TenantId == tenantId && ut.Username == user.Username,
+            cancellationToken: cancellationToken
         );
 
         if (existingUserTenant != null)
-            throw new Exception("User with the same username already exists.");
+        {
+            throw new InvalidOperationException("User with the same username already exists.");
+        }
 
-        _dbContext.Users.Add(user);
+        _ = _dbContext.Users.Add(user);
 
-        UserTenant userTenant = new UserTenant
+        UserTenant userTenant = new()
         {
             UserId = user.Id,
             TenantId = tenantId,
@@ -75,19 +82,22 @@ public class CreateUserCommandHandler(
             Username = user.Username,
         };
 
-        _dbContext.UserTenant.Add(userTenant);
+        _ = _dbContext.UserTenant.Add(userTenant);
 
-        string cacheKey = _userCacheHelper.GetUsersKey(tenantId);
-        await _cache.RemoveAsync(cacheKey);
+        string cacheKey = UserCacheHelper.GetUsersKey(tenantId);
+        await _cache.RemoveAsync(cacheKey, token: cancellationToken);
 
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        _ = await _dbContext.SaveChangesAsync(cancellationToken);
 
         await _publishEndpoint.Publish(
             new UserCreatedEvent(user.Id, user.Email),
             cancellationToken
         );
 
-        await _mediator.Publish(new UserCreatedNotification(user.Id, user.Email));
+        await _mediator.Publish(
+            new UserCreatedNotification(user.Id, user.Email),
+            cancellationToken
+        );
 
         return new UserDto
         {

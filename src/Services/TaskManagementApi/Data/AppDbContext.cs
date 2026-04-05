@@ -1,7 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using TaskManagementApi.Models;
+using TaskManagementApi.Services.Tenancy;
 
-public class AppDbContext : DbContext
+namespace TaskManagementApi.Data;
+
+public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantContext tenantContext)
+    : DbContext(options)
 {
     public DbSet<TaskItem> Tasks { get; set; }
     public DbSet<Tenant> Tenants { get; set; }
@@ -11,13 +15,7 @@ public class AppDbContext : DbContext
     public DbSet<Comment> Comments { get; set; }
     public Guid? CurrentTenantId => _tenantContext?.TenantId;
 
-    private readonly ITenantContext _tenantContext;
-
-    public AppDbContext(DbContextOptions<AppDbContext> options, ITenantContext tenantContext)
-        : base(options)
-    {
-        _tenantContext = tenantContext;
-    }
+    private readonly ITenantContext _tenantContext = tenantContext;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -32,95 +30,92 @@ public class AppDbContext : DbContext
 
     private void AddQueryFilters(ModelBuilder modelBuilder)
     {
-        modelBuilder
+        _ = modelBuilder
             .Entity<User>()
             .HasQueryFilter(u => u.UserTenants.Any(ut => ut.TenantId == CurrentTenantId));
 
-        modelBuilder.Entity<TaskItem>().HasQueryFilter(t => t.TenantId == CurrentTenantId);
+        _ = modelBuilder.Entity<TaskItem>().HasQueryFilter(t => t.TenantId == CurrentTenantId);
 
-        modelBuilder.Entity<Comment>().HasQueryFilter(t => t.TenantId == CurrentTenantId);
+        _ = modelBuilder.Entity<Comment>().HasQueryFilter(t => t.TenantId == CurrentTenantId);
     }
 
     private static void ConfigureUser(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<User>(entity =>
+        _ = modelBuilder.Entity<User>(static entity =>
         {
-            entity.HasKey(u => u.Id);
-            entity.HasIndex(u => u.Id).IsUnique();
-            entity.Property(u => u.Username).HasMaxLength(200);
-            entity.Property(u => u.Email).HasMaxLength(200);
+            _ = entity.HasKey(static u => u.Id);
+            _ = entity.HasIndex(static u => u.Id).IsUnique();
+            _ = entity.Property(static u => u.Username).HasMaxLength(200);
+            _ = entity.Property(static u => u.Email).HasMaxLength(200);
         });
     }
 
-    private void ConfigureComment(ModelBuilder modelBuilder)
+    private static void ConfigureComment(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Comment>(entity =>
+        _ = modelBuilder.Entity<Comment>(static entity =>
         {
-            entity.HasKey(c => c.Id);
-            entity.HasIndex(c => c.TaskId);
-            entity.HasIndex(c => new { c.TaskId, c.CreatedAt });
-            entity.Property(c => c.Subject).HasMaxLength(200);
+            _ = entity.HasKey(static c => c.Id);
+            _ = entity.HasIndex(static c => c.TaskId);
+            _ = entity.HasIndex(static c => new { c.TaskId, c.CreatedAt });
+            _ = entity.Property(static c => c.Subject).HasMaxLength(200);
         });
     }
 
-    private void ConfigureUserTask(ModelBuilder modelBuilder)
+    private static void ConfigureUserTask(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<UserTask>(entity =>
+        _ = modelBuilder.Entity<UserTask>(static entity =>
         {
-            entity.HasKey(ut => new { ut.UserId, ut.TaskItemId });
-            entity
-                .HasOne(ut => ut.User)
-                .WithMany(u => u.UserTasks)
-                .HasForeignKey(ut => ut.UserId)
+            _ = entity.HasKey(static ut => new { ut.UserId, ut.TaskItemId });
+            _ = entity
+                .HasOne(static ut => ut.User)
+                .WithMany(static u => u.UserTasks)
+                .HasForeignKey(static ut => ut.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
-            entity
-                .HasOne(ut => ut.TaskItem)
-                .WithMany(t => t.UserTasks)
-                .HasForeignKey(ut => ut.TaskItemId)
+            _ = entity
+                .HasOne(static ut => ut.TaskItem)
+                .WithMany(static t => t.UserTasks)
+                .HasForeignKey(static ut => ut.TaskItemId)
                 .OnDelete(DeleteBehavior.Cascade);
-            entity.HasIndex(ut => ut.TenantId);
+            _ = entity.HasIndex(static ut => ut.TenantId);
         });
     }
 
-    private void ConfigureUserTenant(ModelBuilder modelBuilder)
+    private static void ConfigureUserTenant(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<UserTenant>(entity =>
+        _ = modelBuilder.Entity<UserTenant>(static entity =>
         {
-            entity.HasKey(ut => new { ut.UserId, ut.TenantId });
-            entity.HasIndex(ut => new { ut.TenantId, ut.Username }).IsUnique();
-            entity
-                .HasOne(ut => ut.User)
-                .WithMany(u => u.UserTenants)
-                .HasForeignKey(ut => ut.UserId)
+            _ = entity.HasKey(static ut => new { ut.UserId, ut.TenantId });
+            _ = entity.HasIndex(static ut => new { ut.TenantId, ut.Username }).IsUnique();
+            _ = entity
+                .HasOne(static ut => ut.User)
+                .WithMany(static u => u.UserTenants)
+                .HasForeignKey(static ut => ut.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
-            entity.Property(ut => ut.Username).IsRequired().HasMaxLength(100);
+            _ = entity.Property(static ut => ut.Username).IsRequired().HasMaxLength(100);
         });
     }
 
-    private void ConfigureTaskItem(ModelBuilder modelBuilder)
+    private static void ConfigureTaskItem(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<TaskItem>(entity =>
+        _ = modelBuilder.Entity<TaskItem>(static entity =>
         {
-            entity.HasKey(t => t.Id);
-            entity.HasIndex(t => t.TenantId);
-            entity
-                .HasOne(t => t.PrimaryAssigneeUser)
+            _ = entity.HasKey(static t => t.Id);
+            _ = entity.HasIndex(static t => t.TenantId);
+            _ = entity
+                .HasOne(static t => t.PrimaryAssigneeUser)
                 .WithMany()
-                .HasForeignKey(t => t.PrimaryAssigneeId)
+                .HasForeignKey(static t => t.PrimaryAssigneeId)
                 .OnDelete(DeleteBehavior.SetNull);
-            entity
-                .HasMany(t => t.Comments)
-                .WithOne(c => c.Task)
-                .HasForeignKey(c => c.TaskId)
+            _ = entity
+                .HasMany(static t => t.Comments)
+                .WithOne(static c => c.Task)
+                .HasForeignKey(static c => c.TaskId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }
 
-    private void ConfigureTenant(ModelBuilder modelBuilder)
+    private static void ConfigureTenant(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Tenant>(entity =>
-        {
-            entity.HasKey(t => t.Id);
-        });
+        _ = modelBuilder.Entity<Tenant>(static entity => _ = entity.HasKey(static t => t.Id));
     }
 }

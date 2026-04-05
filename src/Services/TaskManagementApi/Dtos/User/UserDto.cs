@@ -1,6 +1,6 @@
 using Contracts.Enums;
 
-namespace TaskManagementApi.Dtos;
+namespace TaskManagementApi.Dtos.User;
 
 public class UserDto
 {

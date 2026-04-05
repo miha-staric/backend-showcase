@@ -1,37 +1,41 @@
 using ZiggyCreatures.Caching.Fusion;
 
-namespace Services.Caching
+namespace TaskManagementApi.Services.Caching;
+
+public class UserCacheHelper(IFusionCache cache)
 {
-    public class UserCacheHelper
+    private readonly IFusionCache _cache = cache;
+
+    /// <summary>
+    /// Generates the cache key for a tenant-wide user list
+    /// </summary>
+    /// <param name="tenantId">ID of the tenant</param>
+    public static string GetUsersKey(Guid tenantId)
     {
-        private readonly IFusionCache _cache;
+        return $"tenant:{tenantId}:users";
+    }
 
-        public UserCacheHelper(IFusionCache cache)
-        {
-            _cache = cache;
-        }
+    /// <summary>
+    /// Generates the cache key for a single user
+    /// </summary>
+    /// <param name="tenantId">ID of the tenant</param>
+    /// <param name="userId">ID of the user</param>
+    public static string GetSingleUserKey(Guid tenantId, Guid userId)
+    {
+        return $"tenant:{tenantId}:user:{userId}";
+    }
 
-        /// <summary>
-        /// Generates the cache key for a tenant-wide user list
-        /// </summary>
-        public string GetUsersKey(Guid tenantId) => $"tenant:{tenantId}:users";
+    /// <summary>
+    /// Invalidate both tenant-wide and single-user caches
+    /// </summary>
+    /// <param name="tenantId">ID of the tenant</param>
+    /// <param name="userId">ID of the user</param>
+    public async Task InvalidateUserCacheAsync(Guid tenantId, Guid userId)
+    {
+        string multiKey = GetUsersKey(tenantId);
+        string singleKey = GetSingleUserKey(tenantId, userId);
 
-        /// <summary>
-        /// Generates the cache key for a single user
-        /// </summary>
-        public string GetSingleUserKey(Guid tenantId, Guid userId) =>
-            $"tenant:{tenantId}:user:{userId}";
-
-        /// <summary>
-        /// Invalidate both tenant-wide and single-user caches
-        /// </summary>
-        public async Task InvalidateUserCacheAsync(Guid tenantId, Guid userId)
-        {
-            string multiKey = GetUsersKey(tenantId);
-            string singleKey = GetSingleUserKey(tenantId, userId);
-
-            await _cache.RemoveAsync(multiKey);
-            await _cache.RemoveAsync(singleKey);
-        }
+        await _cache.RemoveAsync(multiKey);
+        await _cache.RemoveAsync(singleKey);
     }
 }

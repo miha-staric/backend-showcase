@@ -1,4 +1,3 @@
-using Contracts.Enums;
 using TaskStatus = Contracts.Enums.TaskStatus;
 
 namespace TaskManagementApi.Models;

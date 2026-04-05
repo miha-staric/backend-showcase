@@ -1,5 +1,5 @@
 using MediatR;
-using TaskManagementApi.Dtos;
+using TaskManagementApi.Dtos.Task;
 using TaskStatus = Contracts.Enums.TaskStatus;
 
 public record UpdateTaskCommand(

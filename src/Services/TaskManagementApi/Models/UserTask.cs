@@ -1,5 +1,3 @@
-using Contracts.Enums;
-
 namespace TaskManagementApi.Models;
 
 public class UserTask

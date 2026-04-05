@@ -1,10 +1,13 @@
-using Contracts;
 using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Services.Caching;
-using TaskManagementApi.Dtos;
+using TaskManagementApi.Data;
+using TaskManagementApi.Dtos.Comment;
 using TaskManagementApi.Models;
+using TaskManagementApi.Services.Tenancy;
+
+namespace TaskManagementApi.Application.Comments.Commands;
 
 public class UpdateCommentCommandHandler(
     AppDbContext db,
@@ -27,10 +30,11 @@ public class UpdateCommentCommandHandler(
             _tenantContext.TenantId
             ?? throw new InvalidOperationException("TenantId is required to update comments.");
 
-        string cacheKey = _commentCacheHelper.GetCommentsKey(tenantId);
+        string cacheKey = CommentCacheHelper.GetCommentsKey(tenantId);
 
-        Comment? comment = await _dbContext.Comments.FirstOrDefaultAsync(c =>
-            c.Id == request.Id && c.TenantId == request.TenantId
+        Comment? comment = await _dbContext.Comments.FirstOrDefaultAsync(
+            c => c.Id == request.Id && c.TenantId == request.TenantId,
+            cancellationToken: cancellationToken
         );
 
         if (comment == null)
@@ -43,8 +47,8 @@ public class UpdateCommentCommandHandler(
         comment.UpdatedAt = DateTimeOffset.UtcNow;
 
         await _commentCacheHelper.InvalidateCommentCacheAsync(tenantId, comment.Id);
-        await _dbContext.SaveChangesAsync(cancellationToken);
-        await _publishEndpoint.Publish(new CommentUpdatedEvent(comment.Id));
+        _ = await _dbContext.SaveChangesAsync(cancellationToken);
+        await _publishEndpoint.Publish(new CommentUpdatedEvent(comment.Id), cancellationToken);
 
         return new CommentDto
         {

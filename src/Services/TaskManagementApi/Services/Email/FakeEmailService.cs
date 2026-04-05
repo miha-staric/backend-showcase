@@ -1,4 +1,6 @@
-public class FakeEmailService : IEmailService
+namespace TaskManagementApi.Services.Email;
+
+public partial class FakeEmailService(ILogger<FakeEmailService> logger) : IEmailService
 {
     public class SentEmail
     {
@@ -9,14 +11,10 @@ public class FakeEmailService : IEmailService
         public DateTime SentAt { get; set; }
     }
 
-    public List<SentEmail> SentEmails { get; } = new();
+    public List<SentEmail> SentEmails { get; } = [];
 
-    private readonly ILogger<FakeEmailService> _logger;
-
-    public FakeEmailService(ILogger<FakeEmailService> logger)
-    {
-        _logger = logger;
-    }
+    [LoggerMessage(Level = LogLevel.Information, Message = "Sending welcome email.")]
+    private partial void Log_WelcomeEmail();
 
     public Task SendWelcomeEmail(string email)
     {
@@ -30,7 +28,7 @@ public class FakeEmailService : IEmailService
                 SentAt = DateTime.UtcNow,
             }
         );
-        _logger.LogInformation("Sending welcome email.");
+        Log_WelcomeEmail();
         return Task.CompletedTask;
     }
 
@@ -64,9 +62,18 @@ public class FakeEmailService : IEmailService
         return Task.CompletedTask;
     }
 
-    public bool WasEmailSent(string email) => SentEmails.Any(e => e.Email == email);
+    public bool WasEmailSent(string email)
+    {
+        return SentEmails.Any(e => e.Email == email);
+    }
 
-    public SentEmail? GetLastEmail() => SentEmails.LastOrDefault();
+    public SentEmail? GetLastEmail()
+    {
+        return SentEmails.LastOrDefault();
+    }
 
-    public void Clear() => SentEmails.Clear();
+    public void Clear()
+    {
+        SentEmails.Clear();
+    }
 }

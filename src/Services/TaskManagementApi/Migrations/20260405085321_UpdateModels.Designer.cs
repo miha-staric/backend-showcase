@@ -12,20 +12,20 @@ using TaskManagementApi.Data;
 namespace TaskManagementApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260327081144_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260405085321_UpdateModels")]
+    partial class UpdateModels
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.3")
+                .HasAnnotation("ProductVersion", "10.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Comment", b =>
+            modelBuilder.Entity("TaskManagementApi.Models.Comment", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -66,7 +66,7 @@ namespace TaskManagementApi.Migrations
                     b.ToTable("Comments");
                 });
 
-            modelBuilder.Entity("TaskItem", b =>
+            modelBuilder.Entity("TaskManagementApi.Models.TaskItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -97,7 +97,7 @@ namespace TaskManagementApi.Migrations
                     b.ToTable("Tasks");
                 });
 
-            modelBuilder.Entity("Tenant", b =>
+            modelBuilder.Entity("TaskManagementApi.Models.Tenant", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -115,7 +115,7 @@ namespace TaskManagementApi.Migrations
                     b.ToTable("Tenants");
                 });
 
-            modelBuilder.Entity("User", b =>
+            modelBuilder.Entity("TaskManagementApi.Models.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -139,7 +139,7 @@ namespace TaskManagementApi.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("UserTask", b =>
+            modelBuilder.Entity("TaskManagementApi.Models.UserTask", b =>
                 {
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -149,9 +149,6 @@ namespace TaskManagementApi.Migrations
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Role")
-                        .HasColumnType("integer");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid");
@@ -173,7 +170,7 @@ namespace TaskManagementApi.Migrations
                     b.ToTable("UserTask");
                 });
 
-            modelBuilder.Entity("UserTenant", b =>
+            modelBuilder.Entity("TaskManagementApi.Models.UserTenant", b =>
                 {
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -197,15 +194,15 @@ namespace TaskManagementApi.Migrations
                     b.ToTable("UserTenant");
                 });
 
-            modelBuilder.Entity("Comment", b =>
+            modelBuilder.Entity("TaskManagementApi.Models.Comment", b =>
                 {
-                    b.HasOne("TaskItem", "Task")
-                        .WithMany()
+                    b.HasOne("TaskManagementApi.Models.TaskItem", "Task")
+                        .WithMany("Comments")
                         .HasForeignKey("TaskId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("User", "User")
+                    b.HasOne("TaskManagementApi.Models.User", "User")
                         .WithMany("Comments")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -216,9 +213,9 @@ namespace TaskManagementApi.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("TaskItem", b =>
+            modelBuilder.Entity("TaskManagementApi.Models.TaskItem", b =>
                 {
-                    b.HasOne("User", "PrimaryAssigneeUser")
+                    b.HasOne("TaskManagementApi.Models.User", "PrimaryAssigneeUser")
                         .WithMany()
                         .HasForeignKey("PrimaryAssigneeId")
                         .OnDelete(DeleteBehavior.SetNull);
@@ -226,21 +223,21 @@ namespace TaskManagementApi.Migrations
                     b.Navigation("PrimaryAssigneeUser");
                 });
 
-            modelBuilder.Entity("UserTask", b =>
+            modelBuilder.Entity("TaskManagementApi.Models.UserTask", b =>
                 {
-                    b.HasOne("TaskItem", "TaskItem")
+                    b.HasOne("TaskManagementApi.Models.TaskItem", "TaskItem")
                         .WithMany("UserTasks")
                         .HasForeignKey("TaskItemId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("User", "User")
+                    b.HasOne("TaskManagementApi.Models.User", "User")
                         .WithMany("UserTasks")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("UserTenant", "UserTenant")
+                    b.HasOne("TaskManagementApi.Models.UserTenant", "UserTenant")
                         .WithMany()
                         .HasForeignKey("UserTenantUserId", "UserTenantTenantId");
 
@@ -251,9 +248,9 @@ namespace TaskManagementApi.Migrations
                     b.Navigation("UserTenant");
                 });
 
-            modelBuilder.Entity("UserTenant", b =>
+            modelBuilder.Entity("TaskManagementApi.Models.UserTenant", b =>
                 {
-                    b.HasOne("User", "User")
+                    b.HasOne("TaskManagementApi.Models.User", "User")
                         .WithMany("UserTenants")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -262,12 +259,14 @@ namespace TaskManagementApi.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("TaskItem", b =>
+            modelBuilder.Entity("TaskManagementApi.Models.TaskItem", b =>
                 {
+                    b.Navigation("Comments");
+
                     b.Navigation("UserTasks");
                 });
 
-            modelBuilder.Entity("User", b =>
+            modelBuilder.Entity("TaskManagementApi.Models.User", b =>
                 {
                     b.Navigation("Comments");
 

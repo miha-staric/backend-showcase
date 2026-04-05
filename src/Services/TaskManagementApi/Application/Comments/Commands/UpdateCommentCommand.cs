@@ -1,5 +1,7 @@
 using MediatR;
-using TaskManagementApi.Dtos;
+using TaskManagementApi.Dtos.Comment;
+
+namespace TaskManagementApi.Application.Comments.Commands;
 
 public record UpdateCommentCommand(
     Guid Id,

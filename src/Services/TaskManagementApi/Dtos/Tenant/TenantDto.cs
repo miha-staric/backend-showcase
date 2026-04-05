@@ -1,4 +1,4 @@
-namespace TaskManagementApi.Dtos;
+namespace TaskManagementApi.Dtos.Tenant;
 
 public class TenantDto
 {

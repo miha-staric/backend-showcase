@@ -1,4 +1,5 @@
 using Contracts.Enums;
+using TaskManagementApi.Services.Tenancy;
 
 public class TenantContext : ITenantContext
 {

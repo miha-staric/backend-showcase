@@ -1,14 +1,15 @@
-using Notifications;
+using TaskManagementApi.Application.Users.Notifications;
 
-public class LoggingService : ILoggingService
+namespace TaskManagementApi.Services.Logging;
+
+public partial class LoggingService(ILogger<LoggingService> logger) : ILoggingService
 {
-    private readonly ILogger<LoggingService> _logger;
-
-    public LoggingService(ILogger<LoggingService> logger) => _logger = logger;
+    [LoggerMessage(Level = LogLevel.Information, Message = "User created.")]
+    private partial void Log_UserCreated();
 
     public Task LogUserCreatedAsync(UserCreatedNotification notification)
     {
-        _logger.LogInformation("User created: {@Notification}", notification);
+        Log_UserCreated();
         return Task.CompletedTask;
     }
 }

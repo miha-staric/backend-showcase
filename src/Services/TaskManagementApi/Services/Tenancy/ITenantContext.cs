@@ -1,5 +1,7 @@
 using Contracts.Enums;
 
+namespace TaskManagementApi.Services.Tenancy;
+
 public interface ITenantContext
 {
     Guid? TenantId { get; }

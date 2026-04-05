@@ -2,10 +2,14 @@ using Contracts;
 using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Services.Caching;
-using TaskManagementApi.Dtos;
+using TaskManagementApi.Data;
+using TaskManagementApi.Dtos.User;
 using TaskManagementApi.Models;
+using TaskManagementApi.Services.Caching;
+using TaskManagementApi.Services.Tenancy;
 using UserRole = Contracts.Enums.UserRole;
+
+namespace TaskManagementApi.Application.Users.Commands;
 
 public class UpdateUserCommandHandler(
     AppDbContext db,
@@ -29,9 +33,11 @@ public class UpdateUserCommandHandler(
             ?? throw new InvalidOperationException("TenantId is required to update users.");
 
         if (_tenantContext.UserRole != UserRole.Admin)
+        {
             throw new InvalidOperationException(
                 "User must have the role of Admin to update users."
             );
+        }
 
         User? user = await _dbContext.Users.FirstOrDefaultAsync(
             u => u.Id == request.Id,
@@ -46,9 +52,9 @@ public class UpdateUserCommandHandler(
 
         await _userCacheHelper.InvalidateUserCacheAsync(tenantId, user.Id);
 
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        _ = await _dbContext.SaveChangesAsync(cancellationToken);
 
-        await _publishEndpoint.Publish(new UserUpdatedEvent(user.Id));
+        await _publishEndpoint.Publish(new UserUpdatedEvent(user.Id), cancellationToken);
 
         return new UserDto
         {

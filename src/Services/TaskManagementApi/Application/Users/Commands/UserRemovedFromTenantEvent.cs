@@ -1,6 +1,6 @@
 using MediatR;
 
-namespace Contracts;
+namespace TaskManagementApi.Application.Users.Commands;
 
 public class UserRemovedFromTenantEvent(Guid tenantId, Guid userId) : INotification
 {

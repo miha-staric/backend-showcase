@@ -11,14 +11,12 @@ namespace TaskManagementApi.Application.Comments.Queries;
 public class GetCommentsQueryHandler(
     AppDbContext dbContext,
     ITenantContext tenantContext,
-    IFusionCache cache,
-    CommentCacheHelper commentCacheHelper
+    IFusionCache cache
 ) : IRequestHandler<GetCommentsQuery, IEnumerable<CommentDto?>>
 {
     private readonly AppDbContext _db = dbContext;
     private readonly ITenantContext _tenantContext = tenantContext;
     private readonly IFusionCache _cache = cache;
-    private readonly CommentCacheHelper _commentCacheHelper = commentCacheHelper;
 
     public async Task<IEnumerable<CommentDto?>> Handle(
         GetCommentsQuery request,

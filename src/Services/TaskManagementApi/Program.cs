@@ -14,6 +14,7 @@ using TaskManagementApi.Services.Caching;
 using TaskManagementApi.Services.Email;
 using TaskManagementApi.Services.Logging;
 using TaskManagementApi.Services.Tenancy;
+using TaskManagementApi.Validators;
 using ZiggyCreatures.Caching.Fusion;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);

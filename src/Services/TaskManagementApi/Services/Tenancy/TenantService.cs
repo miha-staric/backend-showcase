@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TaskManagementApi.Data;
-using TaskManagementApi.Services.Tenancy;
+
+namespace TaskManagementApi.Services.Tenancy;
 
 public class TenantService(AppDbContext dbContext) : ITenantService
 {

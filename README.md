@@ -1,5 +1,5 @@
 ![Language](https://img.shields.io/badge/language-Csharp-green)
-![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows-blue)
+![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20macOS%20%7C%20Windows-teal)
 ![GitHub release (latest by tag)](https://img.shields.io/github/v/release/miha-staric/backend-showcase)
 
 # 🚀 Task Management API as a Backend Showcase

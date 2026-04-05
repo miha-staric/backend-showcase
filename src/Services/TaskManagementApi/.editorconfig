@@ -1,4 +1,15 @@
-[*.cs]
+root = true
 
+[*.cs]
 # IDE0160: Convert to block scoped namespace
 dotnet_diagnostic.IDE0160.severity = none
+# IDE0046: Use condigional expression
+dotnet_diagnostic.IDE0046.severity = none
+# IDE0011: Add braces
+dotnet_diagnostic.IDE0011.severity = none
+
+# Disable all analyzers for EF Core migrations
+[**/Migrations/*.cs]
+generated_code = true
+dotnet_analyzer_diagnostic.severity = none
+#dotnet_diagnostic.CA1861.severity = none

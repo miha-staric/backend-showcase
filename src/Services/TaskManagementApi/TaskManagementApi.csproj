@@ -6,7 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <SelfContained>false</SelfContained>
     <OutputType>Exe</OutputType>
-    <CodeAnalysisRuleSet>../../../CustomRules.ruleset</CodeAnalysisRuleSet>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
   </PropertyGroup>
 
   <ItemGroup>

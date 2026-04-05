@@ -7,7 +7,10 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using Notifications;
 using Services.Caching;
+using TaskManagementApi.Dtos;
+using TaskManagementApi.Models;
 using ZiggyCreatures.Caching.Fusion;
+using UserRole = Contracts.Enums.UserRole;
 using ValidationResult = FluentValidation.Results.ValidationResult;
 
 public class CreateUserCommandHandlerTests

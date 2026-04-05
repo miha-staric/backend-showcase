@@ -2,6 +2,8 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using TaskManagementApi.Controllers;
+using TaskManagementApi.Dtos;
+using UserRole = Contracts.Enums.UserRole;
 
 namespace tests.Unit.Services
 {

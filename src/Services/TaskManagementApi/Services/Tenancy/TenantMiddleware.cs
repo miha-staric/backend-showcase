@@ -4,7 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
 using TaskManagementApi.Data;
 using TaskManagementApi.Models;
-using TaskManagementApi.Services.Tenancy;
+
+namespace TaskManagementApi.Services.Tenancy;
 
 public class TenantMiddleware(RequestDelegate next)
 {
@@ -49,10 +50,8 @@ public class TenantMiddleware(RequestDelegate next)
 
         Guid userId = Guid.Parse(userIdString);
 
-        UserTenant? userTenant = (
-            await db.UserTenant.FirstOrDefaultAsync(ut =>
-                ut.UserId == userId && ut.TenantId == tenantId
-            )
+        UserTenant? userTenant = await db.UserTenant.FirstOrDefaultAsync(ut =>
+            ut.UserId == userId && ut.TenantId == tenantId
         );
 
         if (userTenant == null)

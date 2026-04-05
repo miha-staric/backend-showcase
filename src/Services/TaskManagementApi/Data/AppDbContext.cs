@@ -7,12 +7,12 @@ namespace TaskManagementApi.Data;
 public class AppDbContext(DbContextOptions<AppDbContext> options, ITenantContext tenantContext)
     : DbContext(options)
 {
-    public DbSet<TaskItem> Tasks { get; set; }
-    public DbSet<Tenant> Tenants { get; set; }
-    public DbSet<User> Users { get; set; }
-    public DbSet<UserTask> UserTask { get; set; }
-    public DbSet<UserTenant> UserTenant { get; set; }
-    public DbSet<Comment> Comments { get; set; }
+    public required DbSet<TaskItem> Tasks { get; set; }
+    public required DbSet<Tenant> Tenants { get; set; }
+    public required DbSet<User> Users { get; set; }
+    public required DbSet<UserTask> UserTask { get; set; }
+    public required DbSet<UserTenant> UserTenant { get; set; }
+    public required DbSet<Comment> Comments { get; set; }
     public Guid? CurrentTenantId => _tenantContext?.TenantId;
 
     private readonly ITenantContext _tenantContext = tenantContext;

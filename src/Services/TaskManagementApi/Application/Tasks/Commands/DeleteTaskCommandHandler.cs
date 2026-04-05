@@ -2,7 +2,6 @@ using Contracts;
 using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Services.Caching;
 using TaskManagementApi.Data;
 using TaskManagementApi.Models;
 using TaskManagementApi.Services.Caching;
@@ -17,8 +16,7 @@ public class DeleteTaskCommandHandler(
     IPublishEndpoint publishEndpoint,
     ITenantContext tenantContext,
     IFusionCache cache,
-    TaskCacheHelper taskCacheHelper,
-    CommentCacheHelper commentCacheHelper
+    TaskCacheHelper taskCacheHelper
 ) : IRequestHandler<DeleteTaskCommand, bool>
 {
     private readonly AppDbContext _dbContext = dbContext;
@@ -26,7 +24,6 @@ public class DeleteTaskCommandHandler(
     private readonly ITenantContext _tenantContext = tenantContext;
     private readonly IFusionCache _cache = cache;
     private readonly TaskCacheHelper _taskCacheHelper = taskCacheHelper;
-    private readonly CommentCacheHelper _commentCacheHelper = commentCacheHelper;
 
     public async Task<bool> Handle(DeleteTaskCommand request, CancellationToken cancellationToken)
     {

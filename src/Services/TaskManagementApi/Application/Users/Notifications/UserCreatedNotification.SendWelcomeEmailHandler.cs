@@ -1,14 +1,12 @@
 using MediatR;
-using Notifications;
+using TaskManagementApi.Services.Email;
 
-public class SendWelcomeEmailHandler : INotificationHandler<UserCreatedNotification>
+namespace TaskManagementApi.Application.Users.Notifications;
+
+public class SendWelcomeEmailHandler(IEmailService emailService)
+    : INotificationHandler<UserCreatedNotification>
 {
-    private readonly IEmailService _emailService;
-
-    public SendWelcomeEmailHandler(IEmailService emailService)
-    {
-        _emailService = emailService;
-    }
+    private readonly IEmailService _emailService = emailService;
 
     public async Task Handle(
         UserCreatedNotification notification,

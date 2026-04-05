@@ -1,29 +1,24 @@
-using Contracts;
 using MassTransit;
 using MediatR;
 using Services.Caching;
-using TaskManagementApi.Dtos;
+using TaskManagementApi.Data;
+using TaskManagementApi.Dtos.Comment;
 using TaskManagementApi.Models;
+using TaskManagementApi.Services.Tenancy;
 
-public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand, CommentDto>
+namespace TaskManagementApi.Application.Comments.Commands;
+
+public class CreateCommentCommandHandler(
+    AppDbContext dbContext,
+    IPublishEndpoint publishEndpoint,
+    ITenantContext tenantContext,
+    CommentCacheHelper commentCacheHelper
+) : IRequestHandler<CreateCommentCommand, CommentDto>
 {
-    private readonly AppDbContext _dbContext;
-    private readonly IPublishEndpoint _publishEndpoint;
-    private readonly ITenantContext _tenantContext;
-    private readonly CommentCacheHelper _commentCacheHelper;
-
-    public CreateCommentCommandHandler(
-        AppDbContext dbContext,
-        IPublishEndpoint publishEndpoint,
-        ITenantContext tenantContext,
-        CommentCacheHelper commentCacheHelper
-    )
-    {
-        _dbContext = dbContext;
-        _publishEndpoint = publishEndpoint;
-        _tenantContext = tenantContext;
-        _commentCacheHelper = commentCacheHelper;
-    }
+    private readonly AppDbContext _dbContext = dbContext;
+    private readonly IPublishEndpoint _publishEndpoint = publishEndpoint;
+    private readonly ITenantContext _tenantContext = tenantContext;
+    private readonly CommentCacheHelper _commentCacheHelper = commentCacheHelper;
 
     public async Task<CommentDto> Handle(
         CreateCommentCommand request,
@@ -34,9 +29,7 @@ public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand,
             _tenantContext.TenantId
             ?? throw new InvalidOperationException("TenantId is required to create comments.");
 
-        string cacheKey = _commentCacheHelper.GetCommentsKey(tenantId);
-
-        Comment comment = new Comment
+        Comment comment = new()
         {
             Id = Guid.NewGuid(),
             TenantId = tenantId,
@@ -47,13 +40,13 @@ public class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand,
             CreatedAt = DateTimeOffset.UtcNow,
         };
 
-        _dbContext.Comments.Add(comment);
+        _ = _dbContext.Comments.Add(comment);
 
         await _commentCacheHelper.InvalidateCommentCacheAsync(tenantId, comment.Id);
 
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        _ = await _dbContext.SaveChangesAsync(cancellationToken);
 
-        await _publishEndpoint.Publish(new CommentCreatedEvent(comment.Id));
+        await _publishEndpoint.Publish(new CommentCreatedEvent(comment.Id), cancellationToken);
 
         return new CommentDto
         {

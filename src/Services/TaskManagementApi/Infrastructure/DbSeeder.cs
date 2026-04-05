@@ -1,7 +1,10 @@
 using Microsoft.EntityFrameworkCore;
+using TaskManagementApi.Data;
 using TaskManagementApi.Models;
 using TaskStatus = Contracts.Enums.TaskStatus;
 using UserRole = Contracts.Enums.UserRole;
+
+namespace TaskManagementApi.Infrastructure;
 
 public static class DbSeeder
 {
@@ -11,13 +14,13 @@ public static class DbSeeder
             return;
 
         // Tenants
-        Tenant tenantA = new Tenant
+        Tenant tenantA = new()
         {
             Id = Guid.Parse("4da30340-fda0-49b0-b564-f511c630d221"),
             Title = "Tenant-A",
             Enabled = true,
         };
-        Tenant tenantB = new Tenant
+        Tenant tenantB = new()
         {
             Id = Guid.Parse("2337e27f-58eb-4973-9b43-4b795dac1ad7"),
             Title = "Tenant-B",
@@ -26,19 +29,19 @@ public static class DbSeeder
         db.Tenants.AddRange(tenantA, tenantB);
 
         // Users
-        User alice = new User
+        User alice = new()
         {
             Id = Guid.Parse("bef81bfc-2cbb-4321-bd4a-cecb244dadcb"),
             Username = "alice",
             Email = "alice@tenant-a.example.com",
         };
-        User bob = new User
+        User bob = new()
         {
             Id = Guid.Parse("657ca4fa-fb2d-4180-80db-1403c6b8579e"),
             Username = "bob",
             Email = "bob@tenant-a.example.com",
         };
-        User carol = new User
+        User carol = new()
         {
             Id = Guid.Parse("1b33930d-4437-41ee-9b10-a864b40cec78"),
             Username = "carol",
@@ -46,11 +49,11 @@ public static class DbSeeder
         };
         db.Users.AddRange(alice, bob, carol);
 
-        await db.SaveChangesAsync();
+        _ = await db.SaveChangesAsync();
 
         // UserTenants
-        List<UserTenant> userTenants = new List<UserTenant>
-        {
+        List<UserTenant> userTenants =
+        [
             new()
             {
                 UserId = alice.Id,
@@ -72,12 +75,12 @@ public static class DbSeeder
                 Username = carol.Username,
                 UserRole = UserRole.Admin,
             },
-        };
+        ];
         db.UserTenant.AddRange(userTenants);
-        await db.SaveChangesAsync();
+        _ = await db.SaveChangesAsync();
 
         // Tasks
-        TaskItem task1 = new TaskItem
+        TaskItem task1 = new()
         {
             Id = Guid.Parse("d907410e-5860-4cc4-8800-2230895c001f"),
             TenantId = tenantB.Id,
@@ -85,7 +88,7 @@ public static class DbSeeder
             Status = TaskStatus.New,
             PrimaryAssigneeId = carol.Id,
         };
-        TaskItem task2 = new TaskItem
+        TaskItem task2 = new()
         {
             Id = Guid.Parse("c534787f-dfb8-4269-8941-791efcb8c4e4"),
             TenantId = tenantA.Id,
@@ -94,11 +97,11 @@ public static class DbSeeder
             PrimaryAssigneeId = alice.Id,
         };
         db.Tasks.AddRange(task1, task2);
-        await db.SaveChangesAsync();
+        _ = await db.SaveChangesAsync();
 
         // UserTasks
-        List<UserTask> userTasks = new List<UserTask>
-        {
+        List<UserTask> userTasks =
+        [
             new()
             {
                 UserId = alice.Id,
@@ -113,13 +116,13 @@ public static class DbSeeder
                 TenantId = tenantB.Id,
                 CreatedAt = DateTimeOffset.UtcNow,
             },
-        };
+        ];
         db.UserTask.AddRange(userTasks);
-        await db.SaveChangesAsync();
+        _ = await db.SaveChangesAsync();
 
         // Comments
-        List<Comment> comments = new List<Comment>
-        {
+        List<Comment> comments =
+        [
             new()
             {
                 TenantId = tenantA.Id,
@@ -147,8 +150,8 @@ public static class DbSeeder
                 Content = "I noticed it just the other day, they cannot lie. Like, at all!",
                 CreatedAt = DateTimeOffset.UtcNow,
             },
-        };
+        ];
         db.Comments.AddRange(comments);
-        await db.SaveChangesAsync();
+        _ = await db.SaveChangesAsync();
     }
 }

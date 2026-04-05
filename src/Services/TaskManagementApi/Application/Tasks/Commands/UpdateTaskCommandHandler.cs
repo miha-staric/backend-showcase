@@ -2,10 +2,13 @@ using Contracts;
 using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Services.Caching;
-using TaskManagementApi.Dtos;
+using TaskManagementApi.Data;
+using TaskManagementApi.Dtos.Task;
 using TaskManagementApi.Models;
-using TaskStatus = Contracts.Enums.TaskStatus;
+using TaskManagementApi.Services.Caching;
+using TaskManagementApi.Services.Tenancy;
+
+namespace TaskManagementApi.Application.Tasks.Commands;
 
 public class UpdateTaskCommandHandler(
     AppDbContext db,
@@ -28,10 +31,11 @@ public class UpdateTaskCommandHandler(
             _tenantContext.TenantId
             ?? throw new InvalidOperationException("TenantId is required to update tasks.");
 
-        string cacheKey = _taskCacheHelper.GetTasksKey(tenantId);
+        string cacheKey = TaskCacheHelper.GetTasksKey(tenantId);
 
-        TaskItem? task = await _dbContext.Tasks.FirstOrDefaultAsync(t =>
-            t.Id == request.Id && t.TenantId == request.TenantId
+        TaskItem? task = await _dbContext.Tasks.FirstOrDefaultAsync(
+            t => t.Id == request.Id && t.TenantId == request.TenantId,
+            cancellationToken: cancellationToken
         );
 
         if (task == null)
@@ -43,11 +47,11 @@ public class UpdateTaskCommandHandler(
             task.PrimaryAssigneeId = request.AssignedUserId;
         if (request.DueDate.HasValue)
             task.DueDate = request.DueDate;
-        task.Status = (TaskStatus)request.Status;
+        task.Status = request.Status;
 
         await _taskCacheHelper.InvalidateTaskCacheAsync(tenantId, task.Id);
-        await _dbContext.SaveChangesAsync(cancellationToken);
-        await _publishEndpoint.Publish(new TaskUpdatedEvent(task.Id));
+        _ = await _dbContext.SaveChangesAsync(cancellationToken);
+        await _publishEndpoint.Publish(new TaskUpdatedEvent(task.Id), cancellationToken);
 
         return new TaskDto
         {

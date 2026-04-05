@@ -1,28 +1,22 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Services.Caching;
-using TaskManagementApi.Dtos;
+using TaskManagementApi.Data;
+using TaskManagementApi.Dtos.User;
+using TaskManagementApi.Services.Caching;
+using TaskManagementApi.Services.Tenancy;
 using ZiggyCreatures.Caching.Fusion;
 
-public class GetUsersQueryHandler : IRequestHandler<GetUsersQuery, IEnumerable<UserDto?>>
-{
-    private readonly AppDbContext _db;
-    private readonly IFusionCache _cache;
-    private readonly ITenantContext _tenantContext;
-    private readonly UserCacheHelper _userCacheHelper;
+namespace TaskManagementApi.Application.Users.Queries;
 
-    public GetUsersQueryHandler(
-        AppDbContext dbContext,
-        IFusionCache cache,
-        ITenantContext tenantContext,
-        UserCacheHelper userCacheHelper
-    )
-    {
-        _db = dbContext;
-        _cache = cache;
-        _tenantContext = tenantContext;
-        _userCacheHelper = userCacheHelper;
-    }
+public class GetUsersQueryHandler(
+    AppDbContext dbContext,
+    IFusionCache cache,
+    ITenantContext tenantContext
+) : IRequestHandler<GetUsersQuery, IEnumerable<UserDto?>>
+{
+    private readonly AppDbContext _db = dbContext;
+    private readonly IFusionCache _cache = cache;
+    private readonly ITenantContext _tenantContext = tenantContext;
 
     public async Task<IEnumerable<UserDto?>> Handle(
         GetUsersQuery request,
@@ -33,22 +27,23 @@ public class GetUsersQueryHandler : IRequestHandler<GetUsersQuery, IEnumerable<U
             _tenantContext.TenantId
             ?? throw new InvalidOperationException("TenantId is required to query users.");
 
-        string cacheKey = _userCacheHelper.GetUsersKey(tenantId);
+        string cacheKey = UserCacheHelper.GetUsersKey(tenantId);
 
         return await _cache.GetOrSetAsync(
             cacheKey,
             async _ =>
             {
-                IEnumerable<UserDto> userDtos = await _db
-                    .Users.Select(u => new UserDto
-                    {
-                        Id = u.Id,
-                        Username = u.Username,
-                        Email = u.Email,
-                    })
-                    .ToListAsync();
-                return userDtos;
-            }
+                return (IEnumerable<UserDto>)
+                    await _db
+                        .Users.Select(u => new UserDto
+                        {
+                            Id = u.Id,
+                            Username = u.Username,
+                            Email = u.Email,
+                        })
+                        .ToListAsync(cancellationToken: _);
+            },
+            token: cancellationToken
         );
     }
 }

@@ -2,10 +2,14 @@ using Contracts;
 using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Services.Caching;
-using TaskManagementApi.Dtos;
+using TaskManagementApi.Data;
+using TaskManagementApi.Dtos.Task;
 using TaskManagementApi.Models;
+using TaskManagementApi.Services.Caching;
+using TaskManagementApi.Services.Tenancy;
 using TaskStatus = Contracts.Enums.TaskStatus;
+
+namespace TaskManagementApi.Application.Tasks.Commands;
 
 public class CreateTaskCommandHandler(
     AppDbContext dbContext,
@@ -28,9 +32,9 @@ public class CreateTaskCommandHandler(
             _tenantContext.TenantId
             ?? throw new InvalidOperationException("TenantId is required to create tasks.");
 
-        string cacheKey = _taskCacheHelper.GetTasksKey(tenantId);
+        string cacheKey = TaskCacheHelper.GetTasksKey(tenantId);
 
-        TaskItem task = new TaskItem
+        TaskItem task = new()
         {
             Id = Guid.NewGuid(),
             TenantId = tenantId,
@@ -40,7 +44,7 @@ public class CreateTaskCommandHandler(
             Status = TaskStatus.New,
         };
 
-        _dbContext.Tasks.Add(task);
+        _ = _dbContext.Tasks.Add(task);
 
         if (request.PrimaryAssigneeId != null && request.PrimaryAssigneeId != Guid.Empty)
         {
@@ -62,7 +66,7 @@ public class CreateTaskCommandHandler(
             if (!userTenantExists)
                 throw new InvalidOperationException("User is not part of this tenant.");
 
-            UserTask userTask = new UserTask
+            UserTask userTask = new()
             {
                 UserId = userId,
                 TaskItemId = task.Id,
@@ -70,14 +74,14 @@ public class CreateTaskCommandHandler(
                 CreatedAt = DateTimeOffset.UtcNow,
             };
 
-            _dbContext.UserTask.Add(userTask);
+            _ = _dbContext.UserTask.Add(userTask);
         }
 
         await _taskCacheHelper.InvalidateTaskCacheAsync(tenantId, task.Id);
 
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        _ = await _dbContext.SaveChangesAsync(cancellationToken);
 
-        await _publishEndpoint.Publish(new TaskCreatedEvent(task.Id));
+        await _publishEndpoint.Publish(new TaskCreatedEvent(task.Id), cancellationToken);
 
         return new TaskDto
         {

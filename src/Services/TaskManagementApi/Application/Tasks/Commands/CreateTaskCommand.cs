@@ -1,5 +1,7 @@
 using MediatR;
-using TaskManagementApi.Dtos;
+using TaskManagementApi.Dtos.Task;
+
+namespace TaskManagementApi.Application.Tasks.Commands;
 
 public record CreateTaskCommand(
     string Title,

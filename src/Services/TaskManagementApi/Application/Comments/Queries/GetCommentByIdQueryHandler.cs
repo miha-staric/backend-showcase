@@ -1,20 +1,22 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Services.Caching;
-using TaskManagementApi.Dtos;
+using TaskManagementApi.Data;
+using TaskManagementApi.Dtos.Comment;
+using TaskManagementApi.Services.Tenancy;
 using ZiggyCreatures.Caching.Fusion;
+
+namespace TaskManagementApi.Application.Comments.Queries;
 
 public class GetCommentByIdQueryHandler(
     AppDbContext dbContext,
     ITenantContext tenantContext,
-    IFusionCache cache,
-    CommentCacheHelper commentCacheHelper
+    IFusionCache cache
 ) : IRequestHandler<GetCommentByIdQuery, CommentDto?>
 {
     private readonly AppDbContext _db = dbContext;
     private readonly IFusionCache _cache = cache;
     private readonly ITenantContext _tenantContext = tenantContext;
-    private readonly CommentCacheHelper _commentCacheHelper = commentCacheHelper;
 
     public async Task<CommentDto?> Handle(
         GetCommentByIdQuery request,
@@ -25,7 +27,7 @@ public class GetCommentByIdQueryHandler(
             _tenantContext.TenantId
             ?? throw new InvalidOperationException("TenantId is required to query comments.");
 
-        string cacheKey = _commentCacheHelper.GetSingleCommentKey(tenantId, request.CommentId);
+        string cacheKey = CommentCacheHelper.GetSingleCommentKey(tenantId, request.CommentId);
 
         return await _cache.GetOrSetAsync<CommentDto?>(
             cacheKey,
@@ -50,7 +52,8 @@ public class GetCommentByIdQueryHandler(
                     ctx.Tags = [$"task:{comment.TaskId}"];
 
                 return comment;
-            }
+            },
+            token: cancellationToken
         );
     }
 }

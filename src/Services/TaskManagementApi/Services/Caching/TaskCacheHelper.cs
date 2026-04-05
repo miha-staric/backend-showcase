@@ -1,37 +1,41 @@
 using ZiggyCreatures.Caching.Fusion;
 
-namespace Services.Caching
+namespace TaskManagementApi.Services.Caching;
+
+public class TaskCacheHelper(IFusionCache cache)
 {
-    public class TaskCacheHelper
+    private readonly IFusionCache _cache = cache;
+
+    /// <summary>
+    /// Generates the cache key for a tenant-wide task list
+    /// </summary>
+    /// <param name="tenantId">ID of the tenant</param>
+    public static string GetTasksKey(Guid tenantId)
     {
-        private readonly IFusionCache _cache;
+        return $"tenant:{tenantId}:tasks";
+    }
 
-        public TaskCacheHelper(IFusionCache cache)
-        {
-            _cache = cache;
-        }
+    /// <summary>
+    /// Generates the cache key for a single task item
+    /// </summary>
+    /// <param name="tenantId">ID of the tenant</param>
+    /// <param name="taskId">ID of the task item</param>
+    public static string GetSingleTaskKey(Guid tenantId, Guid taskId)
+    {
+        return $"tenant:{tenantId}:task:{taskId}";
+    }
 
-        /// <summary>
-        /// Generates the cache key for a tenant-wide task list
-        /// </summary>
-        public string GetTasksKey(Guid tenantId) => $"tenant:{tenantId}:tasks";
+    /// <summary>
+    /// Invalidate both tenant-wide and single-task caches
+    /// </summary>
+    /// <param name="tenantId">ID of the tenant</param>
+    /// <param name="taskId">ID of the task item</param>
+    public async Task InvalidateTaskCacheAsync(Guid tenantId, Guid taskId)
+    {
+        string multiKey = GetTasksKey(tenantId);
+        string singleKey = GetSingleTaskKey(tenantId, taskId);
 
-        /// <summary>
-        /// Generates the cache key for a single task item
-        /// </summary>
-        public string GetSingleTaskKey(Guid tenantId, Guid taskId) =>
-            $"tenant:{tenantId}:task:{taskId}";
-
-        /// <summary>
-        /// Invalidate both tenant-wide and single-task caches
-        /// </summary>
-        public async Task InvalidateTaskCacheAsync(Guid tenantId, Guid taskId)
-        {
-            string multiKey = GetTasksKey(tenantId);
-            string singleKey = GetSingleTaskKey(tenantId, taskId);
-
-            await _cache.RemoveAsync(multiKey);
-            await _cache.RemoveAsync(singleKey);
-        }
+        await _cache.RemoveAsync(multiKey);
+        await _cache.RemoveAsync(singleKey);
     }
 }

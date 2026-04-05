@@ -1,21 +1,23 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Services.Caching;
-using TaskManagementApi.Dtos;
+using TaskManagementApi.Data;
+using TaskManagementApi.Dtos.Task;
+using TaskManagementApi.Dtos.User;
+using TaskManagementApi.Services.Caching;
+using TaskManagementApi.Services.Tenancy;
 using ZiggyCreatures.Caching.Fusion;
-using TaskStatus = Contracts.Enums.TaskStatus;
+
+namespace TaskManagementApi.Application.Tasks.Queries;
 
 public class GetTaskByIdQueryHandler(
     AppDbContext dbContext,
     ITenantContext tenantContext,
-    IFusionCache cache,
-    TaskCacheHelper taskCacheHelper
+    IFusionCache cache
 ) : IRequestHandler<GetTaskByIdQuery, TaskDto?>
 {
     private readonly AppDbContext _db = dbContext;
     private readonly IFusionCache _cache = cache;
     private readonly ITenantContext _tenantContext = tenantContext;
-    private readonly TaskCacheHelper _taskCacheHelper = taskCacheHelper;
 
     public async Task<TaskDto?> Handle(
         GetTaskByIdQuery request,
@@ -26,13 +28,13 @@ public class GetTaskByIdQueryHandler(
             _tenantContext.TenantId
             ?? throw new InvalidOperationException("TenantId is required to query tasks.");
 
-        string cacheKey = _taskCacheHelper.GetSingleTaskKey(tenantId, request.TaskId);
+        string cacheKey = TaskCacheHelper.GetSingleTaskKey(tenantId, request.TaskId);
 
         return await _cache.GetOrSetAsync(
             cacheKey,
             async _ =>
             {
-                TaskDto? task = await _db
+                return await _db
                     .Tasks.Include(t => t.PrimaryAssigneeUser)
                     .Where(t => t.Id == request.TaskId)
                     .Select(t => new TaskDto
@@ -54,9 +56,8 @@ public class GetTaskByIdQueryHandler(
                                 : null,
                     })
                     .FirstOrDefaultAsync(cancellationToken);
-
-                return task;
-            }
+            },
+            token: cancellationToken
         );
     }
 }

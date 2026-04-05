@@ -1,4 +1,6 @@
-using Notifications;
+using TaskManagementApi.Application.Users.Notifications;
+
+namespace TaskManagementApi.Services.Logging;
 
 public interface ILoggingService
 {

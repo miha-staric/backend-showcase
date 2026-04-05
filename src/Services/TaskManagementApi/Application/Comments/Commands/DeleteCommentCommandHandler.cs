@@ -1,34 +1,25 @@
-using Contracts;
 using Contracts.Enums;
 using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Services.Caching;
+using TaskManagementApi.Data;
 using TaskManagementApi.Models;
-using ZiggyCreatures.Caching.Fusion;
+using TaskManagementApi.Services.Tenancy;
 
-public class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand, bool>
+namespace TaskManagementApi.Application.Comments.Commands;
+
+public class DeleteCommentCommandHandler(
+    AppDbContext dbContext,
+    IPublishEndpoint publishEndpoint,
+    ITenantContext tenantContext,
+    CommentCacheHelper commentCacheHelper
+) : IRequestHandler<DeleteCommentCommand, bool>
 {
-    private readonly AppDbContext _dbContext;
-    private readonly IPublishEndpoint _publishEndpoint;
-    private readonly ITenantContext _tenantContext;
-    private readonly IFusionCache _cache;
-    private readonly CommentCacheHelper _commentCacheHelper;
-
-    public DeleteCommentCommandHandler(
-        AppDbContext dbContext,
-        IPublishEndpoint publishEndpoint,
-        ITenantContext tenantContext,
-        IFusionCache cache,
-        CommentCacheHelper commentCacheHelper
-    )
-    {
-        _dbContext = dbContext;
-        _publishEndpoint = publishEndpoint;
-        _tenantContext = tenantContext;
-        _cache = cache;
-        _commentCacheHelper = commentCacheHelper;
-    }
+    private readonly AppDbContext _dbContext = dbContext;
+    private readonly IPublishEndpoint _publishEndpoint = publishEndpoint;
+    private readonly ITenantContext _tenantContext = tenantContext;
+    private readonly CommentCacheHelper _commentCacheHelper = commentCacheHelper;
 
     public async Task<bool> Handle(
         DeleteCommentCommand request,
@@ -40,9 +31,11 @@ public class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand,
             ?? throw new InvalidOperationException("TenantId is required to delete comments.");
 
         if (_tenantContext.UserRole != UserRole.Admin)
+        {
             throw new InvalidOperationException(
                 "User must have the role of Admin to delete comments."
             );
+        }
 
         Comment? comment = await _dbContext.Comments.FirstOrDefaultAsync(
             c => c.Id == request.CommentId && c.TenantId == tenantId,
@@ -52,13 +45,16 @@ public class DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand,
         if (comment == null)
             return false;
 
-        _dbContext.Comments.Remove(comment);
+        _ = _dbContext.Comments.Remove(comment);
 
         await _commentCacheHelper.InvalidateCommentCacheAsync(tenantId, request.CommentId);
 
-        await _dbContext.SaveChangesAsync(cancellationToken);
+        _ = await _dbContext.SaveChangesAsync(cancellationToken);
 
-        await _publishEndpoint.Publish(new CommentDeletedEvent(request.CommentId));
+        await _publishEndpoint.Publish(
+            new CommentDeletedEvent(request.CommentId),
+            cancellationToken
+        );
 
         return true;
     }

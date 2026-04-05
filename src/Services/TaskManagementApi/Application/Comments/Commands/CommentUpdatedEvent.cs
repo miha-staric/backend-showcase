@@ -1,13 +1,8 @@
 using MediatR;
 
-namespace Contracts;
+namespace TaskManagementApi.Application.Comments.Commands;
 
-public class CommentUpdatedEvent : INotification
+public class CommentUpdatedEvent(Guid commentId) : INotification
 {
-    public Guid Id { get; }
-
-    public CommentUpdatedEvent(Guid commentId)
-    {
-        Id = commentId;
-    }
+    public Guid Id { get; } = commentId;
 }

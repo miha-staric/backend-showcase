@@ -1,13 +1,10 @@
 using Microsoft.EntityFrameworkCore;
+using TaskManagementApi.Data;
+using TaskManagementApi.Services.Tenancy;
 
-public class TenantService : ITenantService
+public class TenantService(AppDbContext dbContext) : ITenantService
 {
-    private readonly AppDbContext _dbContext;
-
-    public TenantService(AppDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
+    private readonly AppDbContext _dbContext = dbContext;
 
     public async Task<bool> TenantExistsAsync(Guid tenantId)
     {

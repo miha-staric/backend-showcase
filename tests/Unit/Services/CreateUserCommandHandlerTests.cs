@@ -5,17 +5,22 @@ using MassTransit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Moq;
-using Notifications;
-using Services.Caching;
-using TaskManagementApi.Dtos;
+using TaskManagementApi.Application.Users.Commands;
+using TaskManagementApi.Application.Users.Notifications;
+using TaskManagementApi.Data;
+using TaskManagementApi.Dtos.User;
 using TaskManagementApi.Models;
+using TaskManagementApi.Services.Caching;
+using TaskManagementApi.Services.Tenancy;
 using ZiggyCreatures.Caching.Fusion;
 using UserRole = Contracts.Enums.UserRole;
 using ValidationResult = FluentValidation.Results.ValidationResult;
 
+namespace tests.Unit.Services;
+
 public class CreateUserCommandHandlerTests
 {
-    private AppDbContext CreateDbContext(ITenantContext tenantContext)
+    private static AppDbContext CreateDbContext(ITenantContext tenantContext)
     {
         DbContextOptions<AppDbContext> options = new DbContextOptionsBuilder<AppDbContext>()
             .UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -24,15 +29,14 @@ public class CreateUserCommandHandlerTests
         return new AppDbContext(options, tenantContext);
     }
 
-    private Mock<IValidator<CreateUserCommand>> CreateValidValidator()
+    private static Mock<IValidator<CreateUserCommand>> CreateValidValidator()
     {
-        Mock<IValidator<CreateUserCommand>> validatorMock =
-            new Mock<IValidator<CreateUserCommand>>();
+        Mock<IValidator<CreateUserCommand>> validatorMock = new();
 
-        ValidationResult validResult = new ValidationResult();
+        ValidationResult validResult = new();
 
-        validatorMock
-            .Setup(v =>
+        _ = validatorMock
+            .Setup(static v =>
                 v.ValidateAsync(It.IsAny<CreateUserCommand>(), It.IsAny<CancellationToken>())
             )
             .ReturnsAsync(validResult);
@@ -44,36 +48,35 @@ public class CreateUserCommandHandlerTests
     public async Task Handle_ValidRequest_CreatesUser_AndPublishesEvents()
     {
         // Arrange
-        Mock<ITenantContext> tenantContextMock = new Mock<ITenantContext>();
+        Mock<ITenantContext> tenantContextMock = new();
 
-        tenantContextMock.Setup(x => x.TenantId).Returns(Guid.NewGuid());
-        tenantContextMock.Setup(x => x.UserRole).Returns(UserRole.Admin);
+        _ = tenantContextMock.Setup(x => x.TenantId).Returns(Guid.NewGuid());
+        _ = tenantContextMock.Setup(x => x.UserRole).Returns(UserRole.Admin);
 
         AppDbContext dbContext = CreateDbContext(tenantContextMock.Object);
 
-        Mock<IMediator> mediatorMock = new Mock<IMediator>();
-        Mock<IPublishEndpoint> publishEndpointMock = new Mock<IPublishEndpoint>();
-        Mock<IFusionCache> cacheMock = new Mock<IFusionCache>();
+        Mock<IMediator> mediatorMock = new();
+        Mock<IPublishEndpoint> publishEndpointMock = new();
+        Mock<IFusionCache> cacheMock = new();
         Mock<IValidator<CreateUserCommand>> validatorMock = CreateValidValidator();
 
-        UserCacheHelper cacheHelper = new UserCacheHelper(cacheMock.Object);
+        UserCacheHelper cacheHelper = new(cacheMock.Object);
 
         Guid tenantId = Guid.NewGuid();
 
-        tenantContextMock.Setup(x => x.TenantId).Returns(tenantId);
-        tenantContextMock.Setup(x => x.UserRole).Returns(UserRole.Admin);
+        _ = tenantContextMock.Setup(x => x.TenantId).Returns(tenantId);
+        _ = tenantContextMock.Setup(x => x.UserRole).Returns(UserRole.Admin);
 
-        CreateUserCommandHandler handler = new CreateUserCommandHandler(
+        CreateUserCommandHandler handler = new(
             dbContext,
             mediatorMock.Object,
             publishEndpointMock.Object,
             tenantContextMock.Object,
-            cacheHelper,
             cacheMock.Object,
             validatorMock.Object
         );
 
-        CreateUserCommand command = new CreateUserCommand(
+        CreateUserCommand command = new(
             Username: "tito",
             Email: "josip@broz.co.yu",
             UserRole: UserRole.User
@@ -83,11 +86,11 @@ public class CreateUserCommandHandlerTests
         UserDto result = await handler.Handle(command, CancellationToken.None);
 
         // Assert - DB
-        List<User> users = dbContext.Users.ToList();
-        List<UserTenant> userTenants = dbContext.UserTenant.ToList();
+        List<User> users = [.. dbContext.Users];
+        List<UserTenant> userTenants = [.. dbContext.UserTenant];
 
-        Assert.Single(users);
-        Assert.Single(userTenants);
+        _ = Assert.Single(users);
+        _ = Assert.Single(userTenants);
 
         // Assert - result
         Assert.Equal("tito", result.Username);
@@ -113,48 +116,43 @@ public class CreateUserCommandHandlerTests
     public async Task Handle_InvalidValidation_ThrowsValidationException()
     {
         // Arrange
-        Mock<ITenantContext> tenantContextMock = new Mock<ITenantContext>();
+        Mock<ITenantContext> tenantContextMock = new();
         Guid tenantId = Guid.NewGuid();
-        tenantContextMock.Setup(x => x.TenantId).Returns(tenantId);
-        tenantContextMock.Setup(x => x.UserRole).Returns(UserRole.Admin);
+        _ = tenantContextMock.Setup(x => x.TenantId).Returns(tenantId);
+        _ = tenantContextMock.Setup(x => x.UserRole).Returns(UserRole.Admin);
         AppDbContext dbContext = CreateDbContext(tenantContextMock.Object);
 
-        Mock<IMediator> mediatorMock = new Mock<IMediator>();
-        Mock<IPublishEndpoint> publishEndpointMock = new Mock<IPublishEndpoint>();
-        Mock<IFusionCache> cacheMock = new Mock<IFusionCache>();
+        Mock<IMediator> mediatorMock = new();
+        Mock<IPublishEndpoint> publishEndpointMock = new();
+        Mock<IFusionCache> cacheMock = new();
 
-        Mock<IValidator<CreateUserCommand>> validatorMock =
-            new Mock<IValidator<CreateUserCommand>>();
+        Mock<IValidator<CreateUserCommand>> validatorMock = new();
 
-        List<ValidationFailure> failures = new List<ValidationFailure>
-        {
-            new ValidationFailure("Username", "Required"),
-        };
+        List<ValidationFailure> failures = [new ValidationFailure("Username", "Required")];
 
-        ValidationResult invalidResult = new ValidationResult(failures);
+        ValidationResult invalidResult = new(failures);
 
-        validatorMock
+        _ = validatorMock
             .Setup(v =>
                 v.ValidateAsync(It.IsAny<CreateUserCommand>(), It.IsAny<CancellationToken>())
             )
             .ReturnsAsync(invalidResult);
 
-        UserCacheHelper cacheHelper = new UserCacheHelper(cacheMock.Object);
+        UserCacheHelper cacheHelper = new(cacheMock.Object);
 
-        CreateUserCommandHandler handler = new CreateUserCommandHandler(
+        CreateUserCommandHandler handler = new(
             dbContext,
             mediatorMock.Object,
             publishEndpointMock.Object,
             tenantContextMock.Object,
-            cacheHelper,
             cacheMock.Object,
             validatorMock.Object
         );
 
-        CreateUserCommand command = new CreateUserCommand("", "", UserRole.Admin);
+        CreateUserCommand command = new("", "", UserRole.Admin);
 
         // Act & Assert
-        await Assert.ThrowsAsync<ValidationException>(() =>
+        _ = await Assert.ThrowsAsync<ValidationException>(() =>
             handler.Handle(command, CancellationToken.None)
         );
     }
@@ -163,32 +161,31 @@ public class CreateUserCommandHandlerTests
     public async Task Handle_UserNotAdmin_ThrowsInvalidOperationException()
     {
         // Arrange
-        Mock<ITenantContext> tenantContextMock = new Mock<ITenantContext>();
+        Mock<ITenantContext> tenantContextMock = new();
         Guid tenantId = Guid.NewGuid();
-        tenantContextMock.Setup(x => x.TenantId).Returns(Guid.NewGuid());
-        tenantContextMock.Setup(x => x.UserRole).Returns(UserRole.User);
+        _ = tenantContextMock.Setup(x => x.TenantId).Returns(Guid.NewGuid());
+        _ = tenantContextMock.Setup(x => x.UserRole).Returns(UserRole.User);
         AppDbContext dbContext = CreateDbContext(tenantContextMock.Object);
-        Mock<IMediator> mediatorMock = new Mock<IMediator>();
-        Mock<IPublishEndpoint> publishEndpointMock = new Mock<IPublishEndpoint>();
-        Mock<IFusionCache> cacheMock = new Mock<IFusionCache>();
+        Mock<IMediator> mediatorMock = new();
+        Mock<IPublishEndpoint> publishEndpointMock = new();
+        Mock<IFusionCache> cacheMock = new();
         Mock<IValidator<CreateUserCommand>> validatorMock = CreateValidValidator();
 
-        UserCacheHelper cacheHelper = new UserCacheHelper(cacheMock.Object);
+        UserCacheHelper cacheHelper = new(cacheMock.Object);
 
-        CreateUserCommandHandler handler = new CreateUserCommandHandler(
+        CreateUserCommandHandler handler = new(
             dbContext,
             mediatorMock.Object,
             publishEndpointMock.Object,
             tenantContextMock.Object,
-            cacheHelper,
             cacheMock.Object,
             validatorMock.Object
         );
 
-        CreateUserCommand command = new CreateUserCommand("", "", UserRole.User);
+        CreateUserCommand command = new("", "", UserRole.User);
 
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+        _ = await Assert.ThrowsAsync<InvalidOperationException>(() =>
             handler.Handle(command, CancellationToken.None)
         );
     }
@@ -197,55 +194,56 @@ public class CreateUserCommandHandlerTests
     public async Task Handle_DuplicateUser_ThrowsException()
     {
         // Arrange
-        Mock<ITenantContext> tenantContextMock = new Mock<ITenantContext>();
+        Mock<ITenantContext> tenantContextMock = new();
         Guid tenantId = Guid.NewGuid();
-        tenantContextMock.Setup(x => x.TenantId).Returns(tenantId);
-        tenantContextMock.Setup(x => x.UserRole).Returns(UserRole.Admin);
+        _ = tenantContextMock.Setup(x => x.TenantId).Returns(tenantId);
+        _ = tenantContextMock.Setup(x => x.UserRole).Returns(UserRole.Admin);
         AppDbContext dbContext = CreateDbContext(tenantContextMock.Object);
 
         // Create existing user with a tenant
-        User existingUser = new User
+        User existingUser = new()
         {
             Id = Guid.NewGuid(),
             Username = "tito",
             Email = "josip@broz.co.yu",
-            UserTenants = new List<UserTenant>
-            {
-                new UserTenant
+            UserTenants =
+            [
+                new()
                 {
                     TenantId = tenantId,
                     UserRole = UserRole.User,
                     Username = "tito",
                 },
-            },
+            ],
         };
 
-        dbContext.Users.Add(existingUser);
-        await dbContext.SaveChangesAsync();
+        _ = dbContext.Users.Add(existingUser);
+        _ = await dbContext.SaveChangesAsync();
 
-        Mock<IMediator> mediatorMock = new Mock<IMediator>();
-        Mock<IPublishEndpoint> publishEndpointMock = new Mock<IPublishEndpoint>();
-        Mock<IFusionCache> cacheMock = new Mock<IFusionCache>();
+        Mock<IMediator> mediatorMock = new();
+        Mock<IPublishEndpoint> publishEndpointMock = new();
+        Mock<IFusionCache> cacheMock = new();
         Mock<IValidator<CreateUserCommand>> validatorMock = CreateValidValidator();
-        UserCacheHelper cacheHelper = new UserCacheHelper(cacheMock.Object);
+        UserCacheHelper cacheHelper = new(cacheMock.Object);
 
-        CreateUserCommandHandler handler = new CreateUserCommandHandler(
+        CreateUserCommandHandler handler = new(
             dbContext,
             mediatorMock.Object,
             publishEndpointMock.Object,
             tenantContextMock.Object,
-            cacheHelper,
             cacheMock.Object,
             validatorMock.Object
         );
 
-        CreateUserCommand command = new CreateUserCommand(
+        CreateUserCommand command = new(
             Username: "tito",
             Email: "josip@broz.co.yu",
             UserRole: UserRole.User
         );
 
         // Act & Assert
-        await Assert.ThrowsAsync<Exception>(() => handler.Handle(command, CancellationToken.None));
+        _ = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            handler.Handle(command, CancellationToken.None)
+        );
     }
 }

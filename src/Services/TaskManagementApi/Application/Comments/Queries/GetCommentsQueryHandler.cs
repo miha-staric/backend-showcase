@@ -1,8 +1,12 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Services.Caching;
-using TaskManagementApi.Dtos;
+using TaskManagementApi.Data;
+using TaskManagementApi.Dtos.Comment;
+using TaskManagementApi.Services.Tenancy;
 using ZiggyCreatures.Caching.Fusion;
+
+namespace TaskManagementApi.Application.Comments.Queries;
 
 public class GetCommentsQueryHandler(
     AppDbContext dbContext,
@@ -25,27 +29,28 @@ public class GetCommentsQueryHandler(
             _tenantContext.TenantId
             ?? throw new InvalidOperationException("TenantId is required to query comments.");
 
-        string cacheKey = _commentCacheHelper.GetCommentsKey(tenantId);
+        string cacheKey = CommentCacheHelper.GetCommentsKey(tenantId);
 
         return await _cache.GetOrSetAsync(
             cacheKey,
             async _ =>
             {
-                IEnumerable<CommentDto> commentDtos = await _db
-                    .Comments.Select(c => new CommentDto
-                    {
-                        Id = c.Id,
-                        TaskId = c.TaskId,
-                        TenantId = c.TenantId,
-                        UserId = c.UserId,
-                        Subject = c.Subject,
-                        Content = c.Content,
-                        CreatedAt = c.CreatedAt,
-                        UpdatedAt = c.UpdatedAt,
-                    })
-                    .ToListAsync();
-                return commentDtos;
-            }
+                return (IEnumerable<CommentDto>)
+                    await _db
+                        .Comments.Select(c => new CommentDto
+                        {
+                            Id = c.Id,
+                            TaskId = c.TaskId,
+                            TenantId = c.TenantId,
+                            UserId = c.UserId,
+                            Subject = c.Subject,
+                            Content = c.Content,
+                            CreatedAt = c.CreatedAt,
+                            UpdatedAt = c.UpdatedAt,
+                        })
+                        .ToListAsync(cancellationToken: _);
+            },
+            token: cancellationToken
         );
     }
 }

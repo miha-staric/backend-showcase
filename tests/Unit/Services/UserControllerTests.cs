@@ -1,8 +1,10 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using TaskManagementApi.Application.Users.Commands;
+using TaskManagementApi.Application.Users.Queries;
 using TaskManagementApi.Controllers;
-using TaskManagementApi.Dtos;
+using TaskManagementApi.Dtos.User;
 using UserRole = Contracts.Enums.UserRole;
 
 namespace tests.Unit.Services
@@ -39,8 +41,8 @@ namespace tests.Unit.Services
                     UserRole = UserRole.User,
                 },
             ];
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<GetUsersQuery>(), It.IsAny<CancellationToken>()))
+            _ = _mediatorMock
+                .Setup(static m => m.Send(It.IsAny<GetUsersQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(users);
 
             // Act
@@ -56,7 +58,7 @@ namespace tests.Unit.Services
             Assert.Equal(2, returnedUsers.Count());
 
             _mediatorMock.Verify(
-                m => m.Send(It.IsAny<GetUsersQuery>(), It.IsAny<CancellationToken>()),
+                static m => m.Send(It.IsAny<GetUsersQuery>(), It.IsAny<CancellationToken>()),
                 Times.Once
             );
         }
@@ -73,8 +75,10 @@ namespace tests.Unit.Services
                 Email = "jovanka@broz.co.yu",
                 UserRole = UserRole.User,
             };
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<GetUserByIdQuery>(), It.IsAny<CancellationToken>()))
+            _ = _mediatorMock
+                .Setup(static m =>
+                    m.Send(It.IsAny<GetUserByIdQuery>(), It.IsAny<CancellationToken>())
+                )
                 .ReturnsAsync(user);
 
             // Act
@@ -104,8 +108,10 @@ namespace tests.Unit.Services
                 Email = command.Email,
                 UserRole = command.UserRole,
             };
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<CreateUserCommand>(), It.IsAny<CancellationToken>()))
+            _ = _mediatorMock
+                .Setup(static m =>
+                    m.Send(It.IsAny<CreateUserCommand>(), It.IsAny<CancellationToken>())
+                )
                 .ReturnsAsync(createdUser);
 
             // Act
@@ -136,8 +142,10 @@ namespace tests.Unit.Services
                 Username = command.Username ?? "",
                 Email = command.Email ?? "",
             };
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<UpdateUserCommand>(), It.IsAny<CancellationToken>()))
+            _ = _mediatorMock
+                .Setup(static m =>
+                    m.Send(It.IsAny<UpdateUserCommand>(), It.IsAny<CancellationToken>())
+                )
                 .ReturnsAsync(updatedUser);
 
             // Act

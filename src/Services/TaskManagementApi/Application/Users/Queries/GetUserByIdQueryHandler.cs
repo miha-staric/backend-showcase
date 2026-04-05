@@ -1,28 +1,22 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Services.Caching;
-using TaskManagementApi.Dtos;
+using TaskManagementApi.Data;
+using TaskManagementApi.Dtos.User;
+using TaskManagementApi.Services.Caching;
+using TaskManagementApi.Services.Tenancy;
 using ZiggyCreatures.Caching.Fusion;
 
-public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserDto?>
-{
-    private readonly AppDbContext _db;
-    private readonly IFusionCache _cache;
-    private readonly ITenantContext _tenantContext;
-    private readonly UserCacheHelper _userCacheHelper;
+namespace TaskManagementApi.Application.Users.Queries;
 
-    public GetUserByIdQueryHandler(
-        AppDbContext dbContext,
-        ITenantContext tenantContext,
-        IFusionCache cache,
-        UserCacheHelper userCacheHelper
-    )
-    {
-        _db = dbContext;
-        _tenantContext = tenantContext;
-        _cache = cache;
-        _userCacheHelper = userCacheHelper;
-    }
+public class GetUserByIdQueryHandler(
+    AppDbContext dbContext,
+    ITenantContext tenantContext,
+    IFusionCache cache
+) : IRequestHandler<GetUserByIdQuery, UserDto?>
+{
+    private readonly AppDbContext _db = dbContext;
+    private readonly IFusionCache _cache = cache;
+    private readonly ITenantContext _tenantContext = tenantContext;
 
     public async Task<UserDto?> Handle(
         GetUserByIdQuery request,
@@ -33,13 +27,13 @@ public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserDto
             _tenantContext.TenantId
             ?? throw new InvalidOperationException("TenantId is required to query users.");
 
-        string cacheKey = _userCacheHelper.GetSingleUserKey(tenantId, request.UserId);
+        string cacheKey = UserCacheHelper.GetSingleUserKey(tenantId, request.UserId);
 
         return await _cache.GetOrSetAsync(
             cacheKey,
             async _ =>
             {
-                UserDto? user = await _db
+                return await _db
                     .Users.Where(u => u.Id == request.UserId)
                     .Select(u => new UserDto
                     {
@@ -48,9 +42,8 @@ public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserDto
                         Email = u.Email,
                     })
                     .FirstOrDefaultAsync(cancellationToken);
-
-                return user;
-            }
+            },
+            token: cancellationToken
         );
     }
 }

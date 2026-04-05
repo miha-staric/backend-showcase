@@ -1,13 +1,8 @@
 using MediatR;
 
-namespace Contracts;
+namespace TaskManagementApi.Application.Users.Commands;
 
-public class UserUpdatedEvent : INotification
+public class UserUpdatedEvent(Guid id) : INotification
 {
-    public Guid Id { get; }
-
-    public UserUpdatedEvent(Guid id)
-    {
-        Id = id;
-    }
+    public Guid Id { get; } = id;
 }

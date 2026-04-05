@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <SelfContained>false</SelfContained>
     <OutputType>Exe</OutputType>
+    <CodeAnalysisRuleSet>../../../CustomRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <ItemGroup>

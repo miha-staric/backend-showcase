@@ -1,15 +1,16 @@
 using MediatR;
 
-public class GetAccessTokenCommandHandler : IRequestHandler<GetAccessTokenCommand, string>
+namespace TaskManagementApi.Application.Auth.Commands;
+
+public class GetAccessTokenCommandHandler(HttpClient httpClient)
+    : IRequestHandler<GetAccessTokenCommand, string>
 {
-    private readonly HttpClient _httpClient;
+    private readonly HttpClient _httpClient = httpClient;
 
-    public GetAccessTokenCommandHandler(HttpClient httpClient)
-    {
-        _httpClient = httpClient;
-    }
-
-    public async Task<string> Handle(GetAccessTokenCommand request, CancellationToken ct)
+    public async Task<string> Handle(
+        GetAccessTokenCommand request,
+        CancellationToken cancellationToken
+    )
     {
         HttpResponseMessage? response = await _httpClient.PostAsync(
             "http://localhost:8080/realms/realm1/protocol/openid-connect/token",
@@ -17,16 +18,16 @@ public class GetAccessTokenCommandHandler : IRequestHandler<GetAccessTokenComman
                 new Dictionary<string, string>
                 {
                     ["client_id"] = "saas-app",
-                    ["username"] = request.username,
-                    ["password"] = request.password,
+                    ["username"] = request.Username,
+                    ["password"] = request.Password,
                     ["grant_type"] = "password",
                 }
             ),
-            ct
+            cancellationToken
         );
 
-        response.EnsureSuccessStatusCode();
+        _ = response.EnsureSuccessStatusCode();
 
-        return await response.Content.ReadAsStringAsync(ct);
+        return await response.Content.ReadAsStringAsync(cancellationToken);
     }
 }

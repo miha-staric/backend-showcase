@@ -1,9 +1,9 @@
 using MassTransit;
 using MediatR;
-using Services.Caching;
 using TaskManagementApi.Data;
 using TaskManagementApi.Dtos.Comment;
 using TaskManagementApi.Models;
+using TaskManagementApi.Services.Caching;
 using TaskManagementApi.Services.Tenancy;
 
 namespace TaskManagementApi.Application.Comments.Commands;

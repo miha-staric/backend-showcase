@@ -5,7 +5,6 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using Serilog;
-using Services.Caching;
 using TaskManagementApi.Application.Auth.Commands;
 using TaskManagementApi.Application.Users.Commands;
 using TaskManagementApi.Data;

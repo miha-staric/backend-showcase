@@ -6,8 +6,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <SelfContained>false</SelfContained>
     <OutputType>Exe</OutputType>
-    <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <AnalysisLevel>latest</AnalysisLevel>
   </PropertyGroup>
 
   <ItemGroup>

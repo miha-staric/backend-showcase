@@ -1,8 +1,8 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Services.Caching;
 using TaskManagementApi.Data;
 using TaskManagementApi.Dtos.Comment;
+using TaskManagementApi.Services.Caching;
 using TaskManagementApi.Services.Tenancy;
 using ZiggyCreatures.Caching.Fusion;
 

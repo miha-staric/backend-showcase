@@ -12,4 +12,3 @@ dotnet_diagnostic.IDE0011.severity = none
 [**/Migrations/*.cs]
 generated_code = true
 dotnet_analyzer_diagnostic.severity = none
-#dotnet_diagnostic.CA1861.severity = none

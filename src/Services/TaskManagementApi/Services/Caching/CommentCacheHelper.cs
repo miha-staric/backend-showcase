@@ -1,6 +1,6 @@
 using ZiggyCreatures.Caching.Fusion;
 
-namespace Services.Caching;
+namespace TaskManagementApi.Services.Caching;
 
 public class CommentCacheHelper(IFusionCache cache)
 {
